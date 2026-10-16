@@ -61,6 +61,24 @@ def test_empty_filter_shows_map_empty(page, base_url):
     assert page.locator('[data-testid="map-marker"]').count() == 0
 
 
+def test_unknown_hotel_not_found(page, base_url):
+    page.goto(base_url + "/hotels/not-a-hotel")
+    page.locator('[data-testid="hotel-missing"]').wait_for()
+    assert page.locator('[data-testid="hotel-details"]').is_hidden()
+
+
+def test_guest_validation_error(page, base_url):
+    page.route("**/*.tile.openstreetmap.org/**", lambda route: route.fulfill(status=204, body=b""))
+    page.goto(base_url + "/results")
+    page.locator('[data-testid="map-marker"]').first.click()
+    page.locator('[data-testid="map-book"]').click()
+    page.locator('[data-testid="room-continue"]').click()
+    page.locator('[data-testid="guest-name"]').fill("A")
+    page.locator('[data-testid="guest-email"]').fill("not-an-email")
+    page.locator('[data-testid="guest-continue"]').click()
+    page.locator('[data-testid="guest-error"]').wait_for()
+
+
 def test_offshore_area_shows_no_coords(page, base_url):
     page.route("**/*.tile.openstreetmap.org/**", lambda route: route.fulfill(status=204, body=b""))
     page.goto(base_url + "/results")
