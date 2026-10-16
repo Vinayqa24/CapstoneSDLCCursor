@@ -23,11 +23,11 @@ Clarifying questions were interrupted; the user asked to **Continue**. Documente
 
 - Human must confirm assumed UX defaults (layout, Leaflet, Book vs details).
 - Local workspace currently has **no `.git` directory** and **no application source** (`app/`, tests). Stage 2 must decide: restore/extend HarborStay vs greenfield Flask app that still matches README routes.
-- Stage PR URL is pending until git remote + GitHub create succeed.
+- GitHub REST `POST /pulls` returned **403 Resource not accessible by personal access token**. Branches were pushed; open the compare URL below or grant the token **Pull requests: write**.
 
 ## PR
 
-pending
+pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-1-scrum-5-requirements?expand=1
 
 ## Ready for Human Approval
 
