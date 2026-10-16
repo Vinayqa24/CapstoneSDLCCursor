@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Hotel — HarborStay{% endblock %}
+{% block content %}
+  <p id="hotel-missing" class="empty" data-testid="hotel-missing" hidden>Hotel not found.</p>
+  <article id="hotel-details" data-testid="hotel-details" hidden>
+    <h1 id="hotel-name" data-testid="hotel-name"></h1>
+    <p id="hotel-meta" data-testid="hotel-meta"></p>
+    <p id="hotel-blurb" data-testid="hotel-blurb"></p>
+    <p><a id="book-from-details" data-testid="book-from-details" href="#">Select a room</a></p>
+  </article>
+{% endblock %}
+{% block scripts %}
+  <script>window.HOTEL_ID = {{ hotel_id|tojson }};</script>
+  <script src="{{ url_for('static', filename='js/catalog.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/display.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/hotel-details.js') }}"></script>
+{% endblock %}

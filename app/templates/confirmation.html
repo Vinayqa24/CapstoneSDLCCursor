@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Booked — HarborStay{% endblock %}
+{% block content %}
+  <p id="confirm-missing" class="empty" data-testid="confirm-missing" hidden>No booking to show. Return to results and complete a reservation.</p>
+  <section id="confirm-panel" data-testid="confirm-panel" hidden>
+    <h1>You are booked</h1>
+    <p>Reference <strong id="confirm-ref" data-testid="confirm-ref"></strong></p>
+    <p id="confirm-summary" data-testid="confirm-summary"></p>
+    <p><a href="{{ url_for('results') }}" id="back-to-results" data-testid="back-to-results">Back to results</a></p>
+  </section>
+  <canvas id="confetti" class="confetti" hidden></canvas>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/display.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-state.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/confetti.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/confirmation.js') }}"></script>
+{% endblock %}

@@ -30,22 +30,22 @@ Stage 7 runs **Playwright** (pytest and/or `@playwright/test`) against `http://1
 
 | ID | Task | Depends On | Priority | Status | Notes |
 |----|------|------------|----------|--------|-------|
-| T01 | Python deps: Flask, pytest, pytest-playwright (or playwright), pin versions in `requirements.txt`; `pytest.ini` | — | P0 | Not started | No secrets. Do not add map API clients. |
-| T02 | App factory `app/__init__.py`, `wsgi.py`, `app/routes.py` registering GET routes from architecture | T01 | P0 | Not started | `/`, `/results`, `/hotels/<id>`, `/book/<id>/room\|guest\|payment`, `/confirmation` |
-| T03 | Jinja `base.html` + page shells returning HTTP 200 | T02 | P0 | Not started | Unknown hotel id: in-page not-found, still 200 |
-| T04 | Mock catalog JS with `lat`/`lng` (nullable) and ≥1 hotel without coords | T03 | P0 | Not started | Schema: id, name, area, stars, nightlyPrice, rooms, lat, lng |
-| T05 | Results **list**: filter/sort, shared `visibleHotels[]`, a filter combo that empties the list | T04 | P0 | Not started | ≤200 ms guidance on mock set; list `data-testid`s |
-| T06 | Hotel details page from catalog id | T04 | P0 | Not started | Link target for `map-view-details` |
-| T07 | Booking draft: `sessionStorage` key `hotelBookingDraft`; **hydrate from URL hotel id** on room step | T06 | P0 | Not started | Map must not write the draft (design review) |
-| T08 | Room / guest / dummy payment / confirmation (minimal HarborStay wizard) | T07 | P0 | Not started | No PAN; simulated pay only |
-| T09 | `pytest` route smoke (`tests/test_routes.py`) | T03 | P0 | Not started | All GETs 200; can land before catalog polish |
-| T10 | Vendor Leaflet 1.9.4 + LICENSE into `app/static/vendor/leaflet/` | T03 | P0 | Not started | No CDN runtime dependency for JS/CSS |
-| T11 | Results split layout: list + map region, CSS stack ~800px, OSM attribution | T05, T10 | P0 | Not started | `data-testid="results-map"`; hide map chrome until JS inits |
-| T12 | Map module: keyboard map, layerGroup, DivIcon markers, coord range check, empty/no-coords/fallback, subscribe to `visibleHotels[]` only | T11 | P0 | Not started | Skip invalid coords; ≤500 ms marker refresh; `map-fallback` if Leaflet missing |
-| T13 | Marker popup via `createElement`/`textContent`: name, area, stars, price; View details; Book | T12, T06, T08 | P0 | Not started | GET `/hotels/<id>` and `/book/<id>/room` |
-| T14 | README: map usage, testids, Playwright commands | T13 | P1 | Not started | No tokens |
-| T15 | Playwright scripts: marker→details, marker→book, empty→`map-empty`; optional no-coords; stub tiles OK | T13, T09 | P0 | Not started | Single tab; author now, **execute in Stage 7** |
-| T16 | Stage 5 response MD (`docs/sdlc/05-implementation-response.md`) | T13, T09, T15 | P0 | Not started | After code, before coding-stage PR |
+| T01 | Python deps: Flask, pytest, pytest-playwright (or playwright), pin versions in `requirements.txt`; `pytest.ini` | — | P0 | Done | No secrets. Do not add map API clients. |
+| T02 | App factory `app/__init__.py`, `wsgi.py`, `app/routes.py` registering GET routes from architecture | T01 | P0 | Done | `/`, `/results`, `/hotels/<id>`, `/book/<id>/room\|guest\|payment`, `/confirmation` |
+| T03 | Jinja `base.html` + page shells returning HTTP 200 | T02 | P0 | Done | Unknown hotel id: in-page not-found, still 200 |
+| T04 | Mock catalog JS with `lat`/`lng` (nullable) and ≥1 hotel without coords | T03 | P0 | Done | Schema: id, name, area, stars, nightlyPrice, rooms, lat, lng |
+| T05 | Results **list**: filter/sort, shared `visibleHotels[]`, a filter combo that empties the list | T04 | P0 | Done | ≤200 ms guidance on mock set; list `data-testid`s |
+| T06 | Hotel details page from catalog id | T04 | P0 | Done | Link target for `map-view-details` |
+| T07 | Booking draft: `sessionStorage` key `hotelBookingDraft`; **hydrate from URL hotel id** on room step | T06 | P0 | Done | Map must not write the draft (design review) |
+| T08 | Room / guest / dummy payment / confirmation (minimal HarborStay wizard) | T07 | P0 | Done | No PAN; simulated pay only |
+| T09 | `pytest` route smoke (`tests/test_routes.py`) | T03 | P0 | Done | All GETs 200; can land before catalog polish |
+| T10 | Vendor Leaflet 1.9.4 + LICENSE into `app/static/vendor/leaflet/` | T03 | P0 | Done | No CDN runtime dependency for JS/CSS |
+| T11 | Results split layout: list + map region, CSS stack ~800px, OSM attribution | T05, T10 | P0 | Done | `data-testid="results-map"`; hide map chrome until JS inits |
+| T12 | Map module: keyboard map, layerGroup, DivIcon markers, coord range check, empty/no-coords/fallback, subscribe to `visibleHotels[]` only | T11 | P0 | Done | Skip invalid coords; ≤500 ms marker refresh; `map-fallback` if Leaflet missing |
+| T13 | Marker popup via `createElement`/`textContent`: name, area, stars, price; View details; Book | T12, T06, T08 | P0 | Done | GET `/hotels/<id>` and `/book/<id>/room` |
+| T14 | README: map usage, testids, Playwright commands | T13 | P1 | Done | No tokens |
+| T15 | Playwright scripts: marker→details, marker→book, empty→`map-empty`; optional no-coords; stub tiles OK | T13, T09 | P0 | Done | Single tab; author now, **execute in Stage 7** |
+| T16 | Stage 5 response MD (`docs/sdlc/05-implementation-response.md`) | T13, T09, T15 | P0 | Done | After code, before coding-stage PR |
 
 ## Critical Path
 
@@ -90,10 +90,10 @@ No external vendor or Jira blocker. GitHub PR create (403) is a process blocker 
 
 **Overall (Stage 5):**
 
-- [ ] HarborStay routes in README work without a database.
-- [ ] Results show list + interactive map; markers for plottable hotels in the current filter set.
-- [ ] Popup details + View details + Book work; Book hydrates draft from URL.
-- [ ] `map-empty` and `map-no-coords` behave as specified; invalid coords skipped.
-- [ ] Leaflet vendored; OSM attribution visible; no map API keys.
-- [ ] `pytest tests/test_routes.py` passes; Playwright scripts exist under `tests/e2e/` for Stage 7.
-- [ ] `docs/sdlc/05-implementation-response.md` written; no `api-conf.properties` committed.
+- [x] HarborStay routes in README work without a database.
+- [x] Results show list + interactive map; markers for plottable hotels in the current filter set.
+- [x] Popup details + View details + Book work; Book hydrates draft from URL.
+- [x] `map-empty` and `map-no-coords` behave as specified; invalid coords skipped.
+- [x] Leaflet vendored; OSM attribution visible; no map API keys.
+- [x] `pytest tests/test_routes.py` passes; Playwright scripts exist under `tests/e2e/` for Stage 7.
+- [x] `docs/sdlc/05-implementation-response.md` written; no `api-conf.properties` committed.

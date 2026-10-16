@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Guest details — HarborStay{% endblock %}
+{% block content %}
+  {% include "_booking_steps.html" %}
+  <p id="draft-missing" class="empty" data-testid="draft-missing" hidden>Start from a hotel to continue booking.</p>
+  <form id="guest-form" data-testid="guest-form" hidden>
+    <h1>Guest details</h1>
+    <label>Full name
+      <input type="text" name="fullName" id="guest-name" data-testid="guest-name" required maxlength="80">
+    </label>
+    <label>Email
+      <input type="email" name="email" id="guest-email" data-testid="guest-email" required>
+    </label>
+    <p id="guest-error" class="error" data-testid="guest-error" hidden></p>
+    <button type="submit" data-testid="guest-continue">Continue</button>
+  </form>
+{% endblock %}
+{% block scripts %}
+  <script>window.HOTEL_ID = {{ hotel_id|tojson }};</script>
+  <script src="{{ url_for('static', filename='js/booking-state.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-guest.js') }}"></script>
+{% endblock %}

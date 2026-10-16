@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Confirm stay — HarborStay{% endblock %}
+{% block content %}
+  {% include "_booking_steps.html" %}
+  <p id="draft-missing" class="empty" data-testid="draft-missing" hidden>Start from a hotel to continue booking.</p>
+  <section id="pay-step" data-testid="pay-step" hidden>
+    <h1>Confirm reservation</h1>
+    <p id="pay-summary" data-testid="pay-summary"></p>
+    <p class="hint">Simulation only — no card number is collected.</p>
+    <button type="button" id="pay-confirm" data-testid="pay-confirm">Pay / Confirm</button>
+  </section>
+{% endblock %}
+{% block scripts %}
+  <script>window.HOTEL_ID = {{ hotel_id|tojson }};</script>
+  <script src="{{ url_for('static', filename='js/display.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-state.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-payment.js') }}"></script>
+{% endblock %}

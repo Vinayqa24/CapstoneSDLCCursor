@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Select room — HarborStay{% endblock %}
+{% block content %}
+  {% include "_booking_steps.html" %}
+  <p id="hotel-missing" class="empty" data-testid="hotel-missing" hidden>Hotel not found.</p>
+  <section id="room-step" data-testid="room-step" hidden>
+    <h1>Select a room</h1>
+    <p id="room-hotel" data-testid="room-hotel"></p>
+    <form id="room-form" data-testid="room-form">
+      <fieldset>
+        <legend>Room type</legend>
+        <div id="room-options" data-testid="room-options"></div>
+      </fieldset>
+      <button type="submit" data-testid="room-continue">Continue</button>
+    </form>
+  </section>
+{% endblock %}
+{% block scripts %}
+  <script>window.HOTEL_ID = {{ hotel_id|tojson }};</script>
+  <script src="{{ url_for('static', filename='js/catalog.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/display.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-state.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking-room.js') }}"></script>
+{% endblock %}

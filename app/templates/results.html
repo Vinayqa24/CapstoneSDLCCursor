@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Hotels — HarborStay{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
+{% endblock %}
+{% block content %}
+  <h1>Available hotels</h1>
+  <form id="filters" class="filters" data-testid="filters">
+    <label>Search
+      <input type="search" name="q" id="filter-q" data-testid="filter-q" placeholder="Name or area">
+    </label>
+    <label>Area
+      <select name="area" id="filter-area" data-testid="filter-area">
+        <option value="">Any</option>
+      </select>
+    </label>
+    <label>Min stars
+      <select name="stars" id="filter-stars" data-testid="filter-stars">
+        <option value="0">Any</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="5">5</option>
+      </select>
+    </label>
+    <label>Max nightly $
+      <input type="number" name="maxPrice" id="filter-max-price" data-testid="filter-max-price" min="1" step="1" placeholder="Any">
+    </label>
+    <label>Sort
+      <select name="sort" id="filter-sort" data-testid="filter-sort">
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
+        <option value="stars-desc">Stars</option>
+        <option value="name">Name</option>
+      </select>
+    </label>
+  </form>
+  <p class="hint">Tip: search <code>zzz-no-hotels</code> for an empty set. Area <strong>Offshore</strong> is the unmapped inn.</p>
+  <div class="results-split">
+    <section class="results-list-wrap" aria-label="Hotel list">
+      <p id="list-empty" class="empty" data-testid="list-empty" hidden>No hotels match these filters.</p>
+      <ul id="hotel-list" class="hotel-list" data-testid="hotel-list"></ul>
+    </section>
+    <section class="results-map-wrap" aria-label="Hotel map">
+      <p id="map-fallback" class="empty" data-testid="map-fallback" hidden>Map could not load. Use the list to pick a hotel.</p>
+      <p id="map-empty" class="empty" data-testid="map-empty" hidden>No hotels are available to show on the map.</p>
+      <p id="map-no-coords" class="empty" data-testid="map-no-coords" hidden>These hotels are listed but none have map coordinates.</p>
+      <div id="results-map" class="results-map" data-testid="results-map" role="application" aria-label="Interactive hotel map"></div>
+    </section>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/catalog.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/display.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+{% endblock %}
