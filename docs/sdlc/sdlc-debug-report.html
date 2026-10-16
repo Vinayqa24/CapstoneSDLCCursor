@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDLC Debug Report — SCRUM-5</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --line: #2c3a4f;
+      --text: #e8eef6;
+      --muted: #9aa8b8;
+      --ok: #3dba84;
+      --wait: #e3b341;
+      --todo: #6b7c90;
+      --fail: #e06c75;
+      --link: #7eb6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      padding: 1.5rem 1.75rem 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+    header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    main { padding: 1.25rem 1.75rem 2.5rem; max-width: 1100px; }
+    h2 { font-size: 1.05rem; margin: 1.5rem 0 0.75rem; }
+    .banner {
+      background: #3a2f12;
+      border: 1px solid var(--wait);
+      color: #f4e3b0;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+    }
+    .card strong { display: block; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+    th, td { text-align: left; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 0.9rem; }
+    th { color: var(--muted); font-weight: 600; background: #15202e; }
+    a { color: var(--link); }
+    .pill {
+      display: inline-block;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .ok { background: #1e4a38; color: var(--ok); }
+    .wait { background: #4a3c14; color: var(--wait); }
+    .todo { background: #243040; color: var(--todo); }
+    .fail { background: #4a2226; color: var(--fail); }
+    ul { margin: 0.4rem 0 0; padding-left: 1.2rem; color: var(--muted); }
+    code { font-family: Consolas, "Courier New", monospace; font-size: 0.85em; background: #0d1218; padding: 0.1rem 0.35rem; border-radius: 4px; }
+    footer { padding: 0 1.75rem 2rem; color: var(--muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SDLC Debug Report</h1>
+    <p>HarborStay / Agentic SDLC — story <a href="https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5">SCRUM-5</a> (view hotels on a map). Generated 2026-10-16. No secrets included.</p>
+  </header>
+  <main>
+    <div class="banner">
+      <strong>Current gate:</strong> Stage 3 Design Review is waiting for human approval.
+      Stages 4–8 have not started. Reply <code>approved</code> in chat to continue to implementation planning.
+    </div>
+
+    <h2>Snapshot</h2>
+    <div class="grid">
+      <div class="card"><strong>Story</strong>SCRUM-5 · To Do · map view</div>
+      <div class="card"><strong>Active branch</strong><code>sdlc/stage-3-scrum-5-design-review</code></div>
+      <div class="card"><strong>Working tree</strong>Clean (last check)</div>
+      <div class="card"><strong>App source</strong><span class="pill fail">app/ missing</span></div>
+      <div class="card"><strong>GitHub PRs</strong><span class="pill fail">API 403</span> compare URLs only</div>
+      <div class="card"><strong>Next agent</strong>impl-planning-agent (after approval)</div>
+    </div>
+
+    <h2>Pipeline</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Status</th>
+          <th>Primary artifact</th>
+          <th>Stage response</th>
+          <th>PR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 Requirements</td>
+          <td><span class="pill ok">Approved</span></td>
+          <td><code>requirements.md</code></td>
+          <td><code>docs/sdlc/01-requirements-response.md</code></td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-1-scrum-5-requirements?expand=1">compare</a> · branch pushed · PR not created</td>
+        </tr>
+        <tr>
+          <td>2 Architecture</td>
+          <td><span class="pill ok">Approved</span></td>
+          <td><code>architecture.md</code></td>
+          <td><code>docs/sdlc/02-architecture-response.md</code></td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-2-scrum-5-architecture?expand=1">compare</a> · branch pushed · PR not created</td>
+        </tr>
+        <tr>
+          <td>3 Design Review</td>
+          <td><span class="pill wait">Awaiting you</span></td>
+          <td><code>design-review.md</code> + updated architecture</td>
+          <td><code>docs/sdlc/03-design-review-response.md</code></td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-3-scrum-5-design-review?expand=1">compare</a> · branch pushed · PR not created</td>
+        </tr>
+        <tr>
+          <td>4 Impl Plan</td>
+          <td><span class="pill todo">Not started</span></td>
+          <td><code>impl-plan.md</code></td>
+          <td><code>docs/sdlc/04-impl-plan-response.md</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>5 Implementation</td>
+          <td><span class="pill todo">Not started</span></td>
+          <td>Python Flask web app + Leaflet map</td>
+          <td><code>docs/sdlc/05-implementation-response.md</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>6 Code Review</td>
+          <td><span class="pill todo">Not started</span></td>
+          <td>Review report</td>
+          <td><code>docs/sdlc/06-code-review-response.md</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>7 Verify</td>
+          <td><span class="pill todo">Not started</span></td>
+          <td>Playwright E2E + unit/route tests</td>
+          <td><code>docs/sdlc/07-verify-response.md</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>8 Final PR</td>
+          <td><span class="pill todo">Not started</span></td>
+          <td>Full-cycle PR</td>
+          <td><code>docs/sdlc/08-final-pr-response.md</code></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Blockers and defects</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Severity</th><th>Item</th><th>Impact</th><th>Suggested fix</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DBG-1</td>
+          <td><span class="pill wait">Gate</span></td>
+          <td>Stage 3 not human-approved</td>
+          <td>Pipeline must not enter Stage 4</td>
+          <td>Approve design review in chat, or list changes</td>
+        </tr>
+        <tr>
+          <td>DBG-2</td>
+          <td><span class="pill fail">Error</span></td>
+          <td>GitHub <code>POST /repos/.../pulls</code> returned 403 (resource not accessible by PAT)</td>
+          <td>Stage PRs were not opened; only compare URLs exist</td>
+          <td>Grant token <strong>Pull requests: write</strong>, or open the compare links in the browser</td>
+        </tr>
+        <tr>
+          <td>DBG-3</td>
+          <td><span class="pill wait">Risk</span></td>
+          <td><code>app/</code> (Flask application) is not in this workspace</td>
+          <td>Stage 5 must re-establish HarborStay routes, then add the map</td>
+          <td>Expected by architecture; sequence baseline before map in impl-plan</td>
+        </tr>
+        <tr>
+          <td>DBG-4</td>
+          <td><span class="pill wait">Risk</span></td>
+          <td><code>main</code> is still bootstrap-only; stage branches are unmerged</td>
+          <td>Later PRs will stack Stage 1–3 files until merges happen</td>
+          <td>Merge stage branches after each approval, or keep stacking on the latest stage branch</td>
+        </tr>
+        <tr>
+          <td>DBG-5</td>
+          <td><span class="pill todo">Info</span></td>
+          <td><code>gh</code> CLI not installed</td>
+          <td>PR creation fell back to REST API (then 403)</td>
+          <td>Optional: install GitHub CLI after the token can create PRs</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Git branches</h2>
+    <table>
+      <thead>
+        <tr><th>Branch</th><th>Tip (short)</th><th>Remote</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>main</code></td><td>c6211c3 Bootstrap HarborStay SDLC workspace</td><td>origin/main</td></tr>
+        <tr><td><code>sdlc/stage-1-scrum-5-requirements</code></td><td>41904ff Stage 1 response PR note</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-2-scrum-5-architecture</code></td><td>3921b02 Architecture proposal</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-3-scrum-5-design-review</code> (HEAD)</td><td>691636b Design review + architecture fixes</td><td>origin</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Story defaults captured in requirements</h2>
+    <ul>
+      <li>Results page: hotel list + interactive map (not map-only).</li>
+      <li>Leaflet + OpenStreetMap; no map API key in the repo.</li>
+      <li>Marker popup: name, area, rating, price; View details and Book (room step).</li>
+      <li>Mock catalog <code>lat</code>/<code>lng</code>; distinct empty vs no-coordinates messages (after design review).</li>
+      <li>Python Flask app; Stage 7 Playwright E2E.</li>
+    </ul>
+
+    <h2>What is not in this report</h2>
+    <ul>
+      <li>API tokens, <code>api-conf.properties</code> values, or <code>.env</code> contents (redacted / not copied).</li>
+      <li>Playwright or pytest output (Stage 7 has not run).</li>
+      <li>Application runtime logs (no app server in this workspace yet).</li>
+    </ul>
+  </main>
+  <footer>
+    Local file: docs/sdlc/sdlc-debug-report.html · Does not replace a Stage 7 verification report.
+  </footer>
+</body>
+</html>
