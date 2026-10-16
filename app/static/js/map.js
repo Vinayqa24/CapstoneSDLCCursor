@@ -8,8 +8,11 @@
   let layer = null;
 
   function isPlottable(hotel) {
-    const lat = Number(hotel.lat);
-    const lng = Number(hotel.lng);
+    if (!hotel) return false;
+    // Reject null/undefined: Number(null) === 0 and would plot at the equator.
+    if (typeof hotel.lat !== "number" || typeof hotel.lng !== "number") return false;
+    const lat = hotel.lat;
+    const lng = hotel.lng;
     return (
       Number.isFinite(lat) &&
       Number.isFinite(lng) &&
