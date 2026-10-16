@@ -78,7 +78,7 @@
   <main>
     <div class="banner">
       <strong>Current gate:</strong> Stages 1–8 are complete for this cycle (human approved through Verify Go and Final PR).
-      Remaining work is operational: open/merge the GitHub compare PR (<code>POST /pulls</code> still 403). Product AC is met.
+      Remaining work is operational: GitHub <code>POST /pulls</code> still 403 (open the Stage 8 compare URL in the browser). Python Playwright E2E now passes on 3.14 (newer wheel). Playwright MCP config is local <code>.cursor/mcp.json</code> (gitignored).
     </div>
 
     <h2>Snapshot</h2>
@@ -86,7 +86,7 @@
       <div class="card"><strong>Story</strong>SCRUM-5 · map view · cycle closed</div>
       <div class="card"><strong>Active branch</strong><code>sdlc/stage-8-scrum-5-final</code></div>
       <div class="card"><strong>App source</strong><span class="pill ok">app/ present</span> Flask + Leaflet</div>
-      <div class="card"><strong>Verify</strong><span class="pill ok">Go</span> 5 route + 7 Playwright passed</div>
+      <div class="card"><strong>Verify</strong><span class="pill ok">Go</span> 5 route + 7 JS + 6 Python E2E</div>
       <div class="card"><strong>GitHub PRs</strong><span class="pill fail">API 403</span> compare URLs only</div>
       <div class="card"><strong>Next</strong>Open/merge final compare PR</div>
     </div>
@@ -170,8 +170,8 @@
       <tbody>
         <tr><td><code>pytest tests/test_routes.py</code></td><td><span class="pill ok">5 passed</span></td><td>Factory, routes 200, unknown hotel hook, map testids, Leaflet static</td></tr>
         <tr><td><code>npx playwright test</code></td><td><span class="pill ok">7 passed</span></td><td><code>tests/e2e/booking.spec.js</code> — map, details, book, empty, Offshore, not-found, guest error</td></tr>
-        <tr><td><code>pytest tests/e2e/test_booking_e2e.py</code></td><td><span class="pill wait">Not run</span></td><td>Python Playwright / greenlet failed to build on CPython 3.14</td></tr>
-        <tr><td>Playwright MCP</td><td><span class="pill wait">Unavailable</span></td><td>No playwright MCP tools in the Verify session</td></tr>
+        <tr><td><code>pytest tests/e2e/test_booking_e2e.py</code></td><td><span class="pill ok">6 passed</span></td><td>playwright 1.64.0 on CPython 3.14 (guest test uses a valid email + short name)</td></tr>
+        <tr><td>Playwright MCP</td><td><span class="pill wait">Local config only</span></td><td><code>.cursor/mcp.json</code> written from example (gitignored). Refresh Cursor Settings → MCP. Not in this chat’s tool catalog yet.</td></tr>
       </tbody>
     </table>
 
@@ -225,10 +225,10 @@
         </tr>
         <tr>
           <td>DBG-7</td>
-          <td><span class="pill wait">Gap</span></td>
-          <td>Python Playwright not installed on 3.14; MCP missing</td>
-          <td>JS Playwright used for Verify</td>
-          <td>Use a 3.12 venv and/or enable Playwright MCP if required</td>
+          <td><span class="pill ok">Mostly closed</span></td>
+          <td>Python Playwright was blocked on 1.48/greenlet; MCP not in chat tools</td>
+          <td>JS suite was the original Verify path</td>
+          <td>playwright 1.64.0 now runs 6 Python E2E tests. Enable MCP in Cursor via local mcp.json</td>
         </tr>
       </tbody>
     </table>

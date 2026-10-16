@@ -75,16 +75,15 @@ Dummy payment uses a brief ~400 ms loading simulation (not a real gateway).
 # Route smoke only
 pytest tests/test_routes.py -q
 
-# Playwright E2E (Flask must be running on :5000)
-pip install -r requirements.txt
-playwright install chromium
-# terminal 1: flask --app wsgi:app run --port 5000
-# terminal 2:
-set PLAYWRIGHT_BASE_URL=http://127.0.0.1:5000
-pytest tests/e2e/test_booking_e2e.py -q
+# Playwright E2E (preferred on Windows / Python 3.14 — no greenlet build)
+npm i
+npx playwright install chromium
+npx playwright test
 ```
 
-Optional JS twin: `npm i` then `npx playwright test` (see `tests/e2e/booking.spec.js`).
+Python Playwright twin (`tests/e2e/test_booking_e2e.py`) needs a **Python 3.12** venv; CPython 3.14 cannot build `greenlet` without MSVC. Flask is started by `playwright.config.js` `webServer`.
+
+Playwright MCP (optional in Cursor): copy `.cursor/mcp.json.example` to `.cursor/mcp.json` (gitignored) and refresh MCP in Cursor Settings.
 
 Default `pytest` runs route smoke only (`tests/e2e` is ignored). E2E covers map marker → details, marker → book, empty search, and Offshore / no-coords. Tests stub OSM tiles and do not assert tile pixels.
 

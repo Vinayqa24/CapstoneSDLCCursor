@@ -74,7 +74,7 @@ def test_guest_validation_error(page, base_url):
     page.locator('[data-testid="map-book"]').click()
     page.locator('[data-testid="room-continue"]').click()
     page.locator('[data-testid="guest-name"]').fill("A")
-    page.locator('[data-testid="guest-email"]').fill("not-an-email")
+    page.locator('[data-testid="guest-email"]').fill("guest@example.com")
     page.locator('[data-testid="guest-continue"]').click()
     page.locator('[data-testid="guest-error"]').wait_for()
 
