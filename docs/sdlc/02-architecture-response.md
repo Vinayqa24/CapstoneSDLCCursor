@@ -26,7 +26,7 @@ Proposed HarborStay architecture for approved [SCRUM-5](https://vinayqa24-179215
 
 ## PR
 
-pending
+pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-2-scrum-5-architecture?expand=1
 
 ## Ready for Human Approval
 

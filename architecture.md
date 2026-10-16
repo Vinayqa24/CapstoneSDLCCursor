@@ -16,7 +16,7 @@ There is no database, no authentication, and no real payment gateway. Catalog, f
 | Markers for hotels with valid `lat`/`lng` | Catalog schema includes coordinates; map layer skips invalid rows |
 | Popup: name, area, rating, price | Popup template bound to catalog fields only |
 | View details + Book from popup | Client navigation to `/hotels/<id>` and `/book/<id>/room` |
-| Empty / no-coords message | Map region has an explicit empty state, not a blank tile pane |
+| Empty vs no-coords | Two distinct messages: `map-empty` (zero hotels) and `map-no-coords` (hotels in list, none plottable) |
 | Filters update markers | Map is a subscriber of the results filter pipeline (same array as the list) |
 | No map API keys; OSM attribution | Leaflet + OSM; attribution control on; no Google/Mapbox |
 | No geolocation | Map never calls `navigator.geolocation` |
@@ -90,24 +90,25 @@ sequenceDiagram
 | Jinja templates | Results split layout (list + map region); details and booking pages unchanged in role |
 | Mock catalog | Static hotel records including `id`, name, area, stars, price, rooms, **`lat`/`lng`** (nullable) |
 | Filter/sort module | In-memory filter of the catalog; emits the current result set to list and map |
-| Map view module | Init Leaflet, fit bounds, add/remove markers, popup HTML, empty/fallback messages, `data-testid`s |
+| Map view module | Init Leaflet (`keyboard: true`), `L.layerGroup` of **DivIcon** markers (`data-testid="map-marker"`, `data-hotel-id`, accessible name = hotel name), popups built with DOM/`textContent` (no catalog `innerHTML`), `fitBounds` with padding, empty/no-coords/fallback regions |
 | Vendored Leaflet | JS/CSS served from `app/static/` so the map library does not require an API key or a unique CDN contract |
 | OSM tiles | Raster tiles at runtime; attribution visible; no app-side cache required for ~12 hotels |
-| Booking draft | Existing `hotelBookingDraft` in `sessionStorage`; map does not write the draft until the traveler enters the wizard |
+| Booking draft | Existing `hotelBookingDraft` in `sessionStorage`; map never writes it; room step hydrates from URL `hotel_id` |
 | Route tests (`pytest`) | App factory and GET 200 for known routes |
-| Playwright E2E | Results → marker → details; results → marker → booking; empty filters → map empty message |
+| Playwright E2E | Results → marker → details; results → marker → booking; empty filters → `map-empty`; optional fixture with no coords → `map-no-coords` |
 
 ## Data Flow
 
 1. Traveler requests `/` or `/results`. Flask returns HTML plus catalog, results, and map scripts.
 2. Catalog module loads the mock array in the browser.
 3. Filter/sort produces `visibleHotels[]` (same source for the list).
-4. Map module:
-   - If `visibleHotels.length === 0` → show empty message, clear markers.
-   - Else plot `visibleHotels` where `lat`/`lng` are finite numbers; if none plottable → show unavailable-coordinates message, clear markers.
-   - Else add one marker per plottable hotel; on activate, popup fields from that record; **View details** / **Book** are same-origin GET links.
+4. Map module (single subscriber of `visibleHotels[]`; do not re-filter the catalog independently):
+   - If `visibleHotels.length === 0` → show `map-empty`, hide `map-no-coords`, clear markers.
+   - Else keep hotels whose `lat`/`lng` are finite and in range (lat ∈ [-90, 90], lng ∈ [-180, 180]); if none plottable → show `map-no-coords`, hide `map-empty`, clear markers.
+   - Else hide both empty regions; add one DivIcon marker per plottable hotel; on activate, popup fields via `textContent`; **View details** / **Book** are same-origin GET links (`/hotels/<id>`, `/book/<id>/room`).
 5. Filter changes re-run steps 3–4. Marker refresh target: **≤500 ms** on the mock catalog. List filter/sort remains a synchronous in-memory pass (existing ≤200 ms guidance).
-6. Booking wizard and confirmation stay on existing paths; map is an alternate entry, not a parallel booking state machine.
+6. Booking wizard initializes draft from the **URL hotel id** (and catalog lookup) when entered from the map **Book** link, same as from details. Map does not write `hotelBookingDraft` itself.
+7. Booking wizard and confirmation stay on existing paths; map is an alternate entry, not a parallel booking state machine.
 
 ## Technology Choices (with rationale)
 
@@ -144,19 +145,22 @@ No new REST JSON API is required. Map data is embedded in the catalog script (or
 id, name, area, stars, nightlyPrice, lat: number | null, lng: number | null
 ```
 
-Invalid or missing `lat`/`lng` → list row allowed, marker omitted.
+Invalid, missing, or out-of-range `lat`/`lng` → list row allowed, marker omitted. A coordinate is plottable only if both are finite numbers and lat ∈ [-90, 90], lng ∈ [-180, 180].
 
 ### Playwright testids (Stage 7)
 
 | `data-testid` | Element |
 |----|---|
 | `results-map` | Map container |
-| `map-marker` | Marker (hotel id in accessible name or `data-hotel-id`) |
+| `map-marker` | Marker **button/div** (DivIcon), `data-hotel-id`, accessible name = hotel name |
 | `map-popup` | Popup root |
 | `map-view-details` | Details link |
 | `map-book` | Book link |
-| `map-empty` | Empty / no-plottable-hotels message |
-| `map-fallback` | Asset-load failure message |
+| `map-empty` | Zero hotels in the current filter set |
+| `map-no-coords` | Visible hotels exist but none are plottable |
+| `map-fallback` | Leaflet asset-load failure (list still works) |
+
+Results filters used in E2E MUST be able to produce a **zero-hotel** set (existing filter controls, or a documented test-only filter combination). Playwright locators MUST target DivIcon markers and popup links, **not** OSM tile pixels. Tests MAY stub tile HTTP.
 
 ### External
 
@@ -172,7 +176,7 @@ Invalid or missing `lat`/`lng` → list row allowed, marker omitted.
 - OSM tiles are public; still do not proxy secrets through Flask.
 - Do not call geolocation APIs; do not store traveler location.
 - Booking remains simulated; no PAN/CVV collection or storage.
-- Popup HTML must be built with **text escaping** / `textContent` (no unsanitized `innerHTML` from catalog strings).
+- Popup DOM must be built with **`textContent` / `createElement`** only. Do not assign catalog strings to `innerHTML`.
 - Generated docs never echo credentials; missing fields stay `Not Found`.
 
 ## Failure Modes & Resilience
@@ -181,9 +185,9 @@ Invalid or missing `lat`/`lng` → list row allowed, marker omitted.
 |----|---|
 | Leaflet JS/CSS fails to load | Show `map-fallback` in the map region; list still works |
 | OSM tiles fail | Markers and popups still work; attribution remains; optional tile-error notice if Leaflet reports it |
-| Empty filter result | `map-empty`, zero markers |
-| All visible hotels lack coords | Same empty-class message, zero markers, list still shows hotels |
-| Invalid coord on one hotel | Skip that marker; plot the rest; page does not throw |
+| Empty filter result | `map-empty` visible, `map-no-coords` hidden, zero markers |
+| All visible hotels lack plottable coords | `map-no-coords` visible, `map-empty` hidden, zero markers, list still shows hotels |
+| Invalid or out-of-range coord on one hotel | Skip that marker; plot the rest; page does not throw |
 | Unknown hotel id in URL | Existing in-page not-found; no crash |
 | Missing catalog file | Visible results error; map empty/fallback; Flask logs a non-secret reason |
 | Playwright without tiles | Intercept tile URLs or allow OSM; assertions target markers/popup/empty, not pixel tiles |
@@ -196,7 +200,9 @@ Invalid or missing `lat`/`lng` → list row allowed, marker omitted.
 | List+map vs toggle vs `/map` | **Split list+map** on results (approved Stage 1 default) | Dense layout on small viewports; responsive stacking allowed |
 | Leaflet+OSM vs commercial SDK | **Leaflet + OSM** | Tile availability depends on OSM; no SLA |
 | Book → room step vs details-only | **Both** View details and Book (room) | Duplicate CTAs vs details page |
-| Vendor Leaflet vs CDN | **Vendor in `app/static`** | Need license/attribution file; version pinned in impl plan |
+| Vendor Leaflet vs CDN | **Vendor in `app/static`** | Pin version + LICENSE in impl plan |
+| Marker DOM | **DivIcon** with testids (not default pin image) | Slightly custom CSS vs Leaflet default pin |
+| Empty copy | **Two** regions (`map-empty` vs `map-no-coords`) | Slightly more UI copy |
 | Catalog in JS vs Flask-injected JSON | JS module (current HarborStay style) | Either is fine if schema matches |
 | Clustering | Out of scope | ~12 hotels; revisit if catalog grows |
 
