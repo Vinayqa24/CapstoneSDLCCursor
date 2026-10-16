@@ -34,9 +34,9 @@
     main { padding: 1.25rem 1.75rem 2.5rem; max-width: 1100px; }
     h2 { font-size: 1.05rem; margin: 1.5rem 0 0.75rem; }
     .banner {
-      background: #3a2f12;
-      border: 1px solid var(--wait);
-      color: #f4e3b0;
+      background: #163528;
+      border: 1px solid var(--ok);
+      color: #c8f0d8;
       padding: 0.85rem 1rem;
       border-radius: 8px;
       margin-bottom: 1.25rem;
@@ -73,22 +73,22 @@
 <body>
   <header>
     <h1>SDLC Debug Report</h1>
-    <p>HarborStay / Agentic SDLC — story <a href="https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5">SCRUM-5</a> (view hotels on a map). Generated 2026-10-16. No secrets included.</p>
+    <p>HarborStay / Agentic SDLC — story <a href="https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5">SCRUM-5</a> (view hotels on a map). Regenerated 2026-10-16 after Stage 8. No secrets included.</p>
   </header>
   <main>
     <div class="banner">
-      <strong>Current gate:</strong> Stage 3 Design Review is waiting for human approval.
-      Stages 4–8 have not started. Reply <code>approved</code> in chat to continue to implementation planning.
+      <strong>Current gate:</strong> Stages 1–8 are complete for this cycle (human approved through Verify Go and Final PR).
+      Remaining work is operational: open/merge the GitHub compare PR (<code>POST /pulls</code> still 403). Product AC is met.
     </div>
 
     <h2>Snapshot</h2>
     <div class="grid">
-      <div class="card"><strong>Story</strong>SCRUM-5 · To Do · map view</div>
-      <div class="card"><strong>Active branch</strong><code>sdlc/stage-3-scrum-5-design-review</code></div>
-      <div class="card"><strong>Working tree</strong>Clean (last check)</div>
-      <div class="card"><strong>App source</strong><span class="pill fail">app/ missing</span></div>
+      <div class="card"><strong>Story</strong>SCRUM-5 · map view · cycle closed</div>
+      <div class="card"><strong>Active branch</strong><code>sdlc/stage-8-scrum-5-final</code></div>
+      <div class="card"><strong>App source</strong><span class="pill ok">app/ present</span> Flask + Leaflet</div>
+      <div class="card"><strong>Verify</strong><span class="pill ok">Go</span> 5 route + 7 Playwright passed</div>
       <div class="card"><strong>GitHub PRs</strong><span class="pill fail">API 403</span> compare URLs only</div>
-      <div class="card"><strong>Next agent</strong>impl-planning-agent (after approval)</div>
+      <div class="card"><strong>Next</strong>Open/merge final compare PR</div>
     </div>
 
     <h2>Pipeline</h2>
@@ -108,100 +108,127 @@
           <td><span class="pill ok">Approved</span></td>
           <td><code>requirements.md</code></td>
           <td><code>docs/sdlc/01-requirements-response.md</code></td>
-          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-1-scrum-5-requirements?expand=1">compare</a> · branch pushed · PR not created</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-1-scrum-5-requirements?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>2 Architecture</td>
           <td><span class="pill ok">Approved</span></td>
           <td><code>architecture.md</code></td>
           <td><code>docs/sdlc/02-architecture-response.md</code></td>
-          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-2-scrum-5-architecture?expand=1">compare</a> · branch pushed · PR not created</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-2-scrum-5-architecture?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>3 Design Review</td>
-          <td><span class="pill wait">Awaiting you</span></td>
-          <td><code>design-review.md</code> + updated architecture</td>
+          <td><span class="pill ok">Approved</span></td>
+          <td><code>design-review.md</code></td>
           <td><code>docs/sdlc/03-design-review-response.md</code></td>
-          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-3-scrum-5-design-review?expand=1">compare</a> · branch pushed · PR not created</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-3-scrum-5-design-review?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>4 Impl Plan</td>
-          <td><span class="pill todo">Not started</span></td>
+          <td><span class="pill ok">Approved</span></td>
           <td><code>impl-plan.md</code></td>
           <td><code>docs/sdlc/04-impl-plan-response.md</code></td>
-          <td>—</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-4-scrum-5-impl-plan?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>5 Implementation</td>
-          <td><span class="pill todo">Not started</span></td>
-          <td>Python Flask web app + Leaflet map</td>
+          <td><span class="pill ok">Approved</span></td>
+          <td>Flask app + Leaflet map</td>
           <td><code>docs/sdlc/05-implementation-response.md</code></td>
-          <td>—</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-5-scrum-5-implementation?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>6 Code Review</td>
-          <td><span class="pill todo">Not started</span></td>
-          <td>Review report</td>
+          <td><span class="pill ok">Approved</span></td>
+          <td><code>code-review.md</code> (null-coord fix)</td>
           <td><code>docs/sdlc/06-code-review-response.md</code></td>
-          <td>—</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-6-scrum-5-code-review?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>7 Verify</td>
-          <td><span class="pill todo">Not started</span></td>
-          <td>Playwright E2E + unit/route tests</td>
+          <td><span class="pill ok">Go</span></td>
+          <td><code>docs/sdlc/verification-report.md</code></td>
           <td><code>docs/sdlc/07-verify-response.md</code></td>
-          <td>—</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-7-scrum-5-verify?expand=1">compare</a></td>
         </tr>
         <tr>
           <td>8 Final PR</td>
-          <td><span class="pill todo">Not started</span></td>
-          <td>Full-cycle PR</td>
+          <td><span class="pill wait">Package ready</span></td>
+          <td>Full-cycle branch</td>
           <td><code>docs/sdlc/08-final-pr-response.md</code></td>
-          <td>—</td>
+          <td><a href="https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-8-scrum-5-final?expand=1">compare (open this)</a> · API 403</td>
         </tr>
+      </tbody>
+    </table>
+
+    <h2>Test evidence (Stage 7)</h2>
+    <table>
+      <thead>
+        <tr><th>Suite</th><th>Result</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>pytest tests/test_routes.py</code></td><td><span class="pill ok">5 passed</span></td><td>Factory, routes 200, unknown hotel hook, map testids, Leaflet static</td></tr>
+        <tr><td><code>npx playwright test</code></td><td><span class="pill ok">7 passed</span></td><td><code>tests/e2e/booking.spec.js</code> — map, details, book, empty, Offshore, not-found, guest error</td></tr>
+        <tr><td><code>pytest tests/e2e/test_booking_e2e.py</code></td><td><span class="pill wait">Not run</span></td><td>Python Playwright / greenlet failed to build on CPython 3.14</td></tr>
+        <tr><td>Playwright MCP</td><td><span class="pill wait">Unavailable</span></td><td>No playwright MCP tools in the Verify session</td></tr>
       </tbody>
     </table>
 
     <h2>Blockers and defects</h2>
     <table>
       <thead>
-        <tr><th>ID</th><th>Severity</th><th>Item</th><th>Impact</th><th>Suggested fix</th></tr>
+        <tr><th>ID</th><th>Severity</th><th>Item</th><th>Impact</th><th>Status / fix</th></tr>
       </thead>
       <tbody>
         <tr>
           <td>DBG-1</td>
-          <td><span class="pill wait">Gate</span></td>
-          <td>Stage 3 not human-approved</td>
-          <td>Pipeline must not enter Stage 4</td>
-          <td>Approve design review in chat, or list changes</td>
+          <td><span class="pill ok">Closed</span></td>
+          <td>Stage 3 waiting on human</td>
+          <td>—</td>
+          <td>Approved; pipeline continued through Stage 8</td>
         </tr>
         <tr>
           <td>DBG-2</td>
-          <td><span class="pill fail">Error</span></td>
-          <td>GitHub <code>POST /repos/.../pulls</code> returned 403 (resource not accessible by PAT)</td>
-          <td>Stage PRs were not opened; only compare URLs exist</td>
-          <td>Grant token <strong>Pull requests: write</strong>, or open the compare links in the browser</td>
+          <td><span class="pill fail">Open</span></td>
+          <td>GitHub <code>POST /pulls</code> 403 (PAT cannot create PRs)</td>
+          <td>No numbered PRs; compare URLs only</td>
+          <td>Grant token <strong>Pull requests: write</strong>, or open the Stage 8 compare link</td>
         </tr>
         <tr>
           <td>DBG-3</td>
-          <td><span class="pill wait">Risk</span></td>
-          <td><code>app/</code> (Flask application) is not in this workspace</td>
-          <td>Stage 5 must re-establish HarborStay routes, then add the map</td>
-          <td>Expected by architecture; sequence baseline before map in impl-plan</td>
+          <td><span class="pill ok">Closed</span></td>
+          <td><code>app/</code> missing</td>
+          <td>—</td>
+          <td>Stage 5 restored Flask HarborStay + map</td>
         </tr>
         <tr>
           <td>DBG-4</td>
-          <td><span class="pill wait">Risk</span></td>
-          <td><code>main</code> is still bootstrap-only; stage branches are unmerged</td>
-          <td>Later PRs will stack Stage 1–3 files until merges happen</td>
-          <td>Merge stage branches after each approval, or keep stacking on the latest stage branch</td>
+          <td><span class="pill wait">Open</span></td>
+          <td><code>main</code> still bootstrap-only (c6211c3)</td>
+          <td>Work lives on stage branches until merge</td>
+          <td>Merge <code>sdlc/stage-8-scrum-5-final</code> into <code>main</code></td>
         </tr>
         <tr>
           <td>DBG-5</td>
           <td><span class="pill todo">Info</span></td>
           <td><code>gh</code> CLI not installed</td>
-          <td>PR creation fell back to REST API (then 403)</td>
-          <td>Optional: install GitHub CLI after the token can create PRs</td>
+          <td>REST fallback then 403</td>
+          <td>Optional after token can create PRs</td>
+        </tr>
+        <tr>
+          <td>DBG-6</td>
+          <td><span class="pill ok">Closed</span></td>
+          <td><code>Number(null) === 0</code> plotted unmapped hotels at (0,0)</td>
+          <td>Would break <code>map-no-coords</code></td>
+          <td>Fixed in Stage 6 <code>app/static/js/map.js</code>; Offshore E2E passed</td>
+        </tr>
+        <tr>
+          <td>DBG-7</td>
+          <td><span class="pill wait">Gap</span></td>
+          <td>Python Playwright not installed on 3.14; MCP missing</td>
+          <td>JS Playwright used for Verify</td>
+          <td>Use a 3.12 venv and/or enable Playwright MCP if required</td>
         </tr>
       </tbody>
     </table>
@@ -213,30 +240,34 @@
       </thead>
       <tbody>
         <tr><td><code>main</code></td><td>c6211c3 Bootstrap HarborStay SDLC workspace</td><td>origin/main</td></tr>
-        <tr><td><code>sdlc/stage-1-scrum-5-requirements</code></td><td>41904ff Stage 1 response PR note</td><td>origin</td></tr>
-        <tr><td><code>sdlc/stage-2-scrum-5-architecture</code></td><td>3921b02 Architecture proposal</td><td>origin</td></tr>
-        <tr><td><code>sdlc/stage-3-scrum-5-design-review</code> (HEAD)</td><td>691636b Design review + architecture fixes</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-1-scrum-5-requirements</code></td><td>41904ff Stage 1</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-2-scrum-5-architecture</code></td><td>3921b02 Stage 2</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-3-scrum-5-design-review</code></td><td>b388193 Stage 3 + first debug report</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-4-scrum-5-impl-plan</code></td><td>9056f3c Stage 4</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-5-scrum-5-implementation</code></td><td>bdd130c Flask + Leaflet</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-6-scrum-5-code-review</code></td><td>a3fd9e2 Null-coord fix + review</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-7-scrum-5-verify</code></td><td>c0a499c Verify Go evidence</td><td>origin</td></tr>
+        <tr><td><code>sdlc/stage-8-scrum-5-final</code> (HEAD)</td><td>f023469 Stage 8 final PR package</td><td>origin</td></tr>
       </tbody>
     </table>
 
-    <h2>Story defaults captured in requirements</h2>
+    <h2>Product (as shipped)</h2>
     <ul>
-      <li>Results page: hotel list + interactive map (not map-only).</li>
-      <li>Leaflet + OpenStreetMap; no map API key in the repo.</li>
-      <li>Marker popup: name, area, rating, price; View details and Book (room step).</li>
-      <li>Mock catalog <code>lat</code>/<code>lng</code>; distinct empty vs no-coordinates messages (after design review).</li>
-      <li>Python Flask app; Stage 7 Playwright E2E.</li>
+      <li>Results: hotel list + interactive Leaflet 1.9.4 map (OSM tiles, no API key).</li>
+      <li>Marker popup: name, area, rating, price; View details; Book (room step).</li>
+      <li><code>hotel-12</code> / area Offshore has no coordinates (<code>map-no-coords</code>).</li>
+      <li>Search <code>zzz-no-hotels</code> yields empty list and <code>map-empty</code>.</li>
+      <li>Draft hydrates from URL hotel id; map does not write <code>sessionStorage</code>.</li>
     </ul>
 
     <h2>What is not in this report</h2>
     <ul>
-      <li>API tokens, <code>api-conf.properties</code> values, or <code>.env</code> contents (redacted / not copied).</li>
-      <li>Playwright or pytest output (Stage 7 has not run).</li>
-      <li>Application runtime logs (no app server in this workspace yet).</li>
+      <li>API tokens, <code>api-conf.properties</code> values, or <code>.env</code> contents.</li>
+      <li>Full Playwright traces (see <code>docs/sdlc/verification-report.md</code> for command transcripts).</li>
     </ul>
   </main>
   <footer>
-    Local file: docs/sdlc/sdlc-debug-report.html · Does not replace a Stage 7 verification report.
+    Local file: docs/sdlc/sdlc-debug-report.html · Companion to docs/sdlc/verification-report.md · Cycle complete except GitHub PR create/merge.
   </footer>
 </body>
 </html>
