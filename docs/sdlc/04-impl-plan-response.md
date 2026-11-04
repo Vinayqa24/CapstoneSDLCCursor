@@ -2,7 +2,9 @@
 
 ## Summary
 
-Broke approved architecture and design review into a dependency-ordered HarborStay plan: restore the Flask baseline, then add a vendored Leaflet 1.9.4 results map that subscribes to `visibleHotels[]`. Map work is explicitly blocked on catalog, filters, and Leaflet vendor files. Playwright scripts are planned in Stage 5 and executed in Stage 7.
+Broke the approved SCRUM-31 architecture and design review into a dependency-ordered plan for the Flask baseline viewer. Stage 5 adds a loader, two routes, one template, a header link, and five markdown tables transcribed from the Hotel Titan screenshot. HarborStay map and booking handlers stay as they are. Playwright scripts are written in Stage 5 and run in Stage 7.
+
+No production code was written in this stage.
 
 ## Artifacts
 
@@ -12,22 +14,23 @@ Broke approved architecture and design review into a dependency-ordered HarborSt
 
 ## Key Decisions
 
-- Baseline (T01–T08) before map (T10–T13); do not ship map-only.
-- Leaflet **1.9.4** vendored with LICENSE.
-- One mock hotel without coordinates; filters can yield zero hotels.
-- Booking draft hydration from URL (T07); map never writes `sessionStorage`.
-- `pytest` route smoke in Stage 5; Playwright **run** in Stage 7.
+- T01–T06 are the code path; T07 (markdown) can start in parallel and blocks the happy-path tests.
+- No new runtime dependency. `BASELINE_DIR` is package-relative, with a test-only env override for the browser server.
+- Bad tables, non-PNG evidence, and paths outside the baseline directory are `Not Found`, matching the design review.
+- Journey steps search, results, hotel/room selection, and confirmation stay `Not Found`. The room control is documented on the inline form, not as its own screen.
+- `pytest` unit and client tests in Stage 5. Playwright execution is T11 in Stage 7, including one rerun of the existing map specs.
 
 ## Open Questions / Blockers
 
 - Coding starts only after human approval of this plan.
+- T11 is blocked until Stage 7.
 - GitHub PR API may still 403; compare URL fallback.
-- `app/` still absent until Stage 5.
+- Q1–Q4 stay assumptions and do not block T07.
 
 ## PR
 
-pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-4-scrum-5-impl-plan?expand=1
+pending
 
 ## Ready for Human Approval
 
-Yes. Confirm `impl-plan.md` (task order, Leaflet pin, testids) before Stage 5 Implementation. Reply **approved** / **proceed to implementation**, or list changes.
+Yes. Confirm `impl-plan.md` (task order, markdown rules, and test ids) before Stage 5 Implementation. Reply **approved** / **proceed to implementation**, or list changes.
