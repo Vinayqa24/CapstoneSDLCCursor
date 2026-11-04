@@ -2,28 +2,31 @@
 
 ## Summary
 
-Closed the Agentic SDLC cycle for [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5). HarborStay is a Flask portal with a Leaflet results map; Verify was **Go**. The final PR targets `main` from `sdlc/stage-7-scrum-5-verify` (plus this response). GitHub `POST /pulls` may still 403; compare URL is recorded below.
+Closed the Agentic SDLC cycle for [SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31) after the human **Go**. The Flask app serves a screenshot baseline at `GET /baseline`. The final pull request targets `main` and also contains HarborStay from SCRUM-5, because that work is not on `main` yet. The pull-request body with every required section is in `docs/sdlc/final-pr-body.md`.
 
 ## Artifacts
 
-- Full cycle docs (`requirements.md` through `code-review.md`, `impl-plan.md`, `architecture.md`, `design-review.md`)
-- Python web app (`app/`, `wsgi.py`)
-- `docs/sdlc/01`–`08` stage responses, `verification-report.md`
-- Tests: `tests/test_routes.py`, `tests/e2e/booking.spec.js`
+- `docs/sdlc/final-pr-body.md` — final pull-request body
+- `docs/sdlc/08-final-pr-response.md` — this file
+- `docs/sdlc/verification-report.md` — Stage 7 Go
+- Stage responses `docs/sdlc/01` through `docs/sdlc/07`
+- Python web app: HarborStay plus `app/baseline.py` and `app/templates/baseline.html`
 
 ## Key Decisions
 
-- Final PR after human **approved** on Verify Go.
-- Do not invent a merged GitHub PR number if the API cannot create it.
+- Open the final PR only after the human Go.
+- Base branch is `main`, matching `github.defaultBranch`.
+- Do not invent a pull-request number if creation returns 403.
 
 ## Open Questions / Blockers
 
-- Token may lack Pull requests: write.
+- The token may still lack Pull requests: write. `gh` is not installed.
+- Reviewer checklist in the pull-request body is unchecked until a human reviews it.
 
 ## PR
 
-pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-8-scrum-5-final?expand=1
+pending
 
 ## Ready for Human Approval
 
-Yes. Merge the final PR when the reviewer checklist is complete. This completes the agentic SDLC cycle for SCRUM-5.
+Yes. Merge when the reviewer checklist is complete. This completes the agentic SDLC cycle for SCRUM-31.
