@@ -38,7 +38,7 @@ Fixed headings in the template: Inventory, Journey, Validations, Gaps, Questions
 | T08 | Flask client tests for missing evidence and the evidence route. | T05 | P0 | Done | Temp dir without the PNG: **200**, `baseline-evidence-missing`, body does not contain `Titan City House`. Bad file: evidence route **404**. |
 | T09 | Flask client test for the populated page. | T05, T07 | P0 | Done | Five regions, headings, Titan City House, `Book my stay`, `P0`, and a `Not Found` journey step. |
 | T10 | Author `tests/e2e/test_baseline_e2e.py` (pytest-playwright). | T05, T07 | P0 | Done | Happy path against the committed baseline. Second server with `BASELINE_DIR` pointed at a temp dir for the missing PNG. Do not delete the committed screenshot. |
-| T11 | Run the baseline Playwright file and the existing map Playwright file once. | T06, T10 | P0 | Blocked | Stage 7 only. Confirms the header link did not break map test ids. |
+| T11 | Run the baseline Playwright file and the existing map Playwright file once. | T06, T10 | P0 | Done | Stage 7: Python 8 passed; `npx playwright test` 9 passed, including the header link and the map specs. |
 
 ### T07 content rules
 
@@ -73,7 +73,7 @@ T07 is the content bottleneck if the loader and template finish first. It has no
 | T08 | T05 | The missing-evidence markup must exist. |
 | T09 | T05 and T07 | Happy-path HTML needs both the template and the markdown. |
 | T10 | T05 and T07 | Playwright asserts the same content. |
-| T11 | Stage 7, plus T06 and T10 | Scripts are authored in Stage 5 and executed in Stage 7. |
+| T11 | — | Executed in Stage 7. Python Playwright 8 passed. `npx playwright test` 9 passed. |
 
 No task is blocked on a new screenshot or on a Jira comment. Q1–Q4 stay the approved assumptions.
 

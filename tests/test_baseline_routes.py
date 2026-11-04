@@ -51,6 +51,46 @@ def test_populated_baseline_matches_markdown():
     assert shot.data.startswith(b"\x89PNG\r\n\x1a\n")
 
 
+def test_markdown_cell_is_escaped(tmp_path):
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "image-20261103-075923.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    tables = {
+        "inventory.md": (
+            "| Feature | Screen | Section | Control | Evidence |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| Brand | Home | Header | <script>alert(1)</script> | Mark |\n"
+        ),
+        "journey.md": (
+            "| Step | Evidenced | Transition | Required inputs |\n"
+            "| --- | --- | --- | --- |\n"
+            "| search | Not Found | Not Found | Not Found |\n"
+        ),
+        "validations.md": (
+            "| Step | Field | Visible placeholder | Format | Failure state |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| guest details | Email | you@example.com | Not Found | Not Found |\n"
+        ),
+        "gaps.md": (
+            "| ID | Priority | Gap | Rationale |\n"
+            "| --- | --- | --- | --- |\n"
+            "| G1 | P0 | No confirmation | Booking integrity |\n"
+        ),
+        "questions.md": (
+            "| ID | Question | Assumption | Owner | Due |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| Q1 | Screens? | Not Found | Product owner | Before Stage 2 approval |\n"
+        ),
+    }
+    for name, body in tables.items():
+        (tmp_path / name).write_text(body, encoding="utf-8")
+    app = create_app()
+    app.config["BASELINE_DIR"] = str(tmp_path)
+    body = app.test_client().get("/baseline").get_data(as_text=True)
+    assert "<script>" not in body
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in body
+
+
 def test_harborstay_routes_still_ok():
     client = create_app().test_client()
     results = client.get("/results")

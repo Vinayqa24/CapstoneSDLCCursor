@@ -3,67 +3,81 @@
 ## Commands Run
 
 ```text
-python --version
-# Python 3.14.6
+python -m pytest tests/test_baseline.py tests/test_baseline_routes.py tests/test_routes.py --override-ini "addopts=" -q
+# 20 passed, 1 skipped in 1.12s
 
-python -m pytest tests/test_routes.py -q
-# .....  (5 passed)
+python -m playwright install chromium
+# Chromium for Python Playwright 1.64 downloaded
 
-python -m pip install playwright==1.48.0 pytest-playwright==0.5.2
-# FAILED: greenlet wheel needs MSVC on CPython 3.14 (Python Playwright E2E not runnable here)
+python -m pytest tests/e2e/test_baseline_e2e.py tests/e2e/test_booking_e2e.py --override-ini "addopts=" -q
+# 8 passed in 14.60s
 
 npx playwright install chromium
 npx playwright test
-# 7 passed (6.3s)
+# 9 passed (8.6s)
 ```
 
-Playwright MCP was **not registered** in this Cursor session (no `playwright` MCP tools). Durable scripts were authored/extended under `tests/e2e/` and executed with `@playwright/test` against Flask (`webServer` in `playwright.config.js`). Tiles stubbed (`204`).
+Start the app locally with `python -m flask --app wsgi:app run --port 5000`, then open `http://127.0.0.1:5000/baseline`.
+
+Playwright MCP was not registered in this session (no browser tools). The same flows were executed with the committed Playwright scripts against the Flask app.
 
 ## Playwright Scripts Added
 
-- `tests/e2e/booking.spec.js` — primary executed suite (Stage 7)
-- `tests/e2e/test_booking_e2e.py` — Python twin (not executed: Playwright Python install failed on 3.14)
-- `playwright.config.js` — baseURL, Chromium, Flask webServer
+- `tests/e2e/baseline.spec.js` — results link to `/baseline`, five regions, PNG response, and a second Flask process with `BASELINE_DIR` empty for the missing-screenshot case. Executed by `npx playwright test`.
+- `tests/e2e/test_baseline_e2e.py` — Python twin. The happy path now starts at `/results` and follows `baseline-nav`. Executed by pytest.
+- `tests/e2e/booking.spec.js` and `tests/e2e/test_booking_e2e.py` — existing HarborStay map suite, re-run after the header link. Both passed.
+- `playwright.config.js` — unchanged. It starts Flask on port 5000 and matches `**/*.spec.js`.
 
 ## Test Results Summary
 
 | Suite | Result |
 |----|---|
-| `pytest tests/test_routes.py` | **5 passed** |
-| `npx playwright test` (`booking.spec.js`) | **7 passed** |
-| `pytest tests/e2e/test_booking_e2e.py` | **Not run** (no `playwright` Python module) |
-| Playwright MCP live explore | **Unavailable** in this session |
+| pytest loader and route tests | **20 passed, 1 skipped** |
+| pytest `test_baseline_e2e.py` and `test_booking_e2e.py` | **8 passed** |
+| `npx playwright test` | **9 passed** |
+| Playwright MCP live session | **Unavailable** |
 
-Executed UI cases: list+map visible, marker → details, marker → book/room, empty search `zzz-no-hotels` → `map-empty`, Offshore → `map-no-coords`, unknown hotel not-found, guest name too short → `guest-error`.
+The skipped test is `test_symlink_outside_baseline_is_missing` (this host would not create a symlink). The outside-path and forced-escape tests passed.
+
+UI cases that ran: `/results` → Baseline link → five regions, Titan City House / Shoreline / Alpine Lodge, Book my stay, P0, journey `Not Found`, evidence PNG 200; empty `BASELINE_DIR` → `baseline-evidence-missing` and no hotel or form text; map marker → details, marker → book, empty filter, Offshore no-coords, unknown hotel, guest error.
+
+A Flask client test also checks that a markdown cell `<script>` is rendered as escaped text.
 
 ## Acceptance Criteria Traceability
 
 | Criterion | Result | Evidence |
-|----|----|---|
-| Map visible with list on `/results` | Pass | `results shows list and map` |
-| Plottable hotels as markers | Pass | `map-marker` visible on default catalog |
-| Marker shows name/area/stars/price | Pass | popup contains `/ night` (Display.hotelLine) |
-| Select hotel → details | Pass | `marker popup shows details and opens hotel page` |
-| Proceed to booking (room) | Pass | `marker book opens room step` |
-| Empty filter message, zero markers | Pass | `empty search shows map-empty` |
-| Missing coordinates, page intact | Pass | `offshore area shows map-no-coords` (null-coord fix) |
-| No secrets in repo/docs | Pass | `api-conf.properties` gitignored; docs have no tokens |
-| Playwright drives map + empty | Pass | `booking.spec.js` 7 passed |
+|----|---|---|
+| Screenshot is the only UI evidence; inventory lists header, hero, three Titan properties, booking fields, and Book my stay | Pass | `docs/baseline/inventory.md`; `baseline.spec.js` saw the three hotels and Book my stay |
+| Inventory does not add screens or controls that are absent from the PNG | Pass | `inventory.md` has one Home screen. Search, results, hotel details, and confirmation are `Not Found` in `journey.md`, not extra pages |
+| `GET /baseline` shows five regions and headings matching the markdown, with the named `data-testid`s | Pass | JS and Python Playwright; Flask client `test_populated_baseline_matches_markdown` |
+| Journey covers all six steps and marks steps that are not in the screenshot `Not Found` | Pass | `journey.md`; Playwright asserts `Not Found` in the journey region |
+| Visible fields list placeholder, format, and failure state, using `Not Found` when the PNG shows no rule | Pass | `validations.md` — eight booking fields, format and failure state `Not Found` |
+| Gaps include P0 confirmation, P1 selection, P1 validation, and P2 carousel, each with a rationale | Pass | `gaps.md`; Playwright asserts `P0` |
+| Each open question has owner product owner and due before Stage 2 approval | Pass | `questions.md` Q1–Q5 |
+| Missing PNG returns the missing-evidence message and does not invent hotels or form fields | Pass | `baseline.spec.js` and `test_baseline_e2e.py` with an empty directory |
+| No secrets in the repo or in docs for this story | Pass | Scan of `docs/baseline/` found no tokens, passwords, or private keys. The app does not read `api-conf.properties` |
+| Playwright opens `/baseline` and asserts the five regions and the missing-evidence message | Pass | Both runners, commands above |
 
 ## Output Document Quality Check
 
-- `requirements.md`, `architecture.md`, `design-review.md`, `impl-plan.md`, `code-review.md` have required headings.
-- Stage responses 01–06 present; this stage adds 07.
-- Missing fields are not filled with invented credentials.
-- Capstone “empty repo / missing files” applies to doc-sync products; this story uses a bundled catalog. Covered analog: unknown hotel **Not Found** UI.
+| Document | Check |
+|----|---|
+| `docs/baseline/inventory.md` | Columns match the contract. Home screen only. Three hotels, booking fields, Book my stay, no-sign-in statement. No prices or error strings. |
+| `docs/baseline/journey.md` | Six steps in order. Guest details and submit describe the inline form. The other steps are `Not Found`. |
+| `docs/baseline/validations.md` | Placeholders only. Format and failure state are `Not Found`. |
+| `docs/baseline/gaps.md` | G1 P0, G2 P1, G3 P1, G4 P2, each with a user-impact or booking-integrity rationale. |
+| `docs/baseline/questions.md` | Q1–Q5, owner Product owner, due Before Stage 2 approval. No calendar date invented. |
+| Secrets | None in those files. |
+
+Property-card sentences were transcribed from the screenshot and were not compared pixel by pixel in this run. The tests lock the hotel names and the booking button.
 
 ## Failures / Gaps
 
-1. Playwright MCP server not enabled (`.cursor/mcp.json.example` exists; live MCP catalog had no playwright tools).
-2. Python Playwright cannot install on this CPython 3.14 (greenlet build). JS Playwright is the executed path.
-3. `gunicorn` remains unused (Stage 6 warning, accepted).
-4. Full booking-to-confirmation is not a SCRUM-5 AC; only map → room (and guest error) were run.
+- Playwright MCP tools were not available, so the browser pass used the Playwright test runners instead of the MCP session.
+- One symlink unit test is skipped on this Windows host.
+- A read `OSError` can still surface as HTTP 500. The missing-file path that the acceptance criteria name was tested and passed.
+- Jira was not updated. That stays out of scope until a later approval.
 
 ## Go / No-Go for Final PR
 
-**Go** for Stage 8, with the gaps above noted. Product AC for SCRUM-5 is met by route tests + executed JS Playwright. Human should still confirm Go/No-Go before the final PR.
+**Go.** Acceptance criteria for SCRUM-31 passed in unit tests and in both Playwright runners. Stage 8 may open the final PR after the human confirms this Go.

@@ -27,7 +27,9 @@ def baseline_url():
 
 
 def test_baseline_regions(page, baseline_url):
-    page.goto(baseline_url + "/baseline")
+    page.goto(baseline_url + "/results")
+    page.locator('[data-testid="baseline-nav"]').click()
+    page.wait_for_url("**/baseline")
     for testid in (
         "baseline-inventory",
         "baseline-journey",
@@ -44,8 +46,6 @@ def test_baseline_regions(page, baseline_url):
     journey = page.locator('[data-testid="baseline-journey"]').inner_text()
     assert "search" in journey
     assert "Not Found" in journey
-    page.locator('[data-testid="baseline-nav"]').click()
-    page.wait_for_url("**/baseline")
 
 
 def test_missing_evidence_message(page, tmp_path):
