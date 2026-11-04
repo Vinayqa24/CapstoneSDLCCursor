@@ -2,89 +2,104 @@
 
 ## User Story
 
-**Source:** [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5)
+**Source:** [SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31) (To Do, Story)
 
-As a traveler, I want to view hotels on a map so that I can easily find and select a hotel.
+As a product owner, I want to capture and document the current UI capabilities from provided screenshots and map the end-to-end booking journey so that gaps and future enhancements are evidence-based and prioritized correctly.
 
-Display available hotels on an interactive map. Users can click a hotel marker to view basic hotel details and proceed with booking.
+**Business value (from Jira):** Prevent rework and a misaligned backlog by establishing a verified baseline of existing features and user flow.
 
 **Jira acceptance (verbatim):**
 
-- Hotels are displayed as markers on the map.
-- Clicking a marker shows basic hotel details.
-- User can select a hotel from the map.
-- User can proceed to the booking page.
-- An appropriate message is shown when no hotels are available.
+- Given screenshots are provided for Home/Search, Search Results, Hotel Details, Checkout/Booking, and Confirmation (or equivalent), when analysis is completed, then a current feature inventory is produced with each feature mapped to the screen and UI evidence (section/control).
+- Given the primary booking journey exists, when analysis is completed, then an end-to-end journey map is documented covering search → results → hotel/room selection → guest details → submit → confirmation, including transitions and required inputs.
+- Given each step is documented, when required fields and validations are identified, then they are listed per step with expected formats (e.g., dates, guests, email) and failure states.
+- Given gaps are identified, when prioritization is done, then each gap is categorized as P0/P1/P2 with rationale tied to user impact and booking integrity.
+- Given the inventory and journey map are completed, when they are reviewed, then they are stored in the project knowledge base (or attached to the Jira ticket) and linked from the story.
+- Given ambiguities remain (missing screens/unclear controls), when noted, then a questions/assumptions list is produced with owners and due dates.
 
-**Product context:** HarborStay is a Python Flask + Jinja2 hotel booking portal with a mock catalog (`hotel-01` … `hotel-12`), results (filter/sort), hotel details, a three-step booking wizard, and confirmation. This story extends the traveler-facing results experience with a map; it does not replace the booking wizard.
+**Evidence on the ticket:** Two attachments, `image-20261103-075923.png` (id 10000, embedded in the description) and `HotelBooking.png` (id 10001), are byte-identical (SHA-256 `58E33A893C6BEF7112D6F8B5F84B6D8C9ECBB8E0A5F3788200E3995DF3B9C785`). The canonical copy in this repo is `docs/baseline/evidence/image-20261103-075923.png`.
+
+**What that single image shows:** One Hotel Titan page in a browser at `localhost:3000`. It is a home page with a hero, three featured property cards (Titan City House, Titan Shoreline, Titan Alpine Lodge), and an inline “Book your stay” form. It does not show separate Search Results, Hotel Details, Checkout, or Confirmation screens.
+
+**Cycle note:** This replaces [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5) as the active requirements baseline. SCRUM-5 architecture, plan, HarborStay map behavior, and later stage reports remain historical. They are not approved design for SCRUM-31.
 
 ## Clarifications (Q&A summary)
 
-Clarifying questions were asked; the user replied **Continue** without choosing options. The following defaults are recorded so Stage 1 can complete. They may be overridden before Architecture is approved.
-
-| Topic | Assumed default |
+| Topic | Decision |
 |----|---|
-| Map placement | Results page (`/` and `/results`): keep the existing hotel **list** and add an **interactive map** of the same filtered set (split / list+map view). |
-| Map library | **Leaflet** with **OpenStreetMap** tiles (no map API key). Attribution must remain visible. |
-| Marker click | Popup/card with **basic details**: hotel name, location/area, star rating, and nightly price. |
-| Select hotel | From the popup, **View details** navigates to existing hotel details (`/hotels/<hotel_id>`). |
-| Proceed to booking | From the popup, **Book** (or equivalent) navigates to the existing room step (`/book/<hotel_id>/room`), same as starting booking from details. |
-| Coordinates | Add `lat` / `lng` to the **mock catalog** (static demo data). No runtime geocoding. |
-| Empty map | When the **current results filters yield zero hotels**, the map region shows an appropriate empty message and **no markers**. |
-| Missing coordinates | Hotels without valid `lat`/`lng` still appear in the list but **do not** get a marker. If every hotel in the current result set lacks coordinates (or the set is empty), show the same class of empty/unavailable map message. |
-| Clustering / geolocation | Not required (catalog size is ~12 hotels). No “use my location” or “search this area.” |
-| Delivery / verify | Python web application (Flask, consistent with HarborStay). Stage 7 verifies with **Playwright** (plus unit/route tests). |
+| Evidence | Use only the one Jira screenshot (the description image). The second attachment is the same file. Do not inventory the HarborStay app or invent screens that are not in the PNG. |
+| Missing screens | Search Results, Hotel Details, a separate Checkout page, and Confirmation are not in the image. Record each as an assumption/question. Do not draw them. |
+| Delivery | A Python web app presents the feature inventory, journey map, field/validation list, and P0/P1/P2 gaps, backed by markdown under `docs/baseline/`. Stage 7 verifies the pages with Playwright. The app documents the baseline; it does not reimplement Hotel Titan booking. |
+| Gaps | A gap is a journey step or required field (including its format or failure state) that the screenshot does not show. Priority follows user impact and booking integrity using the rubric below. |
+| Publish | Store artifacts in the repo and reference them from this file. Do not comment on or attach files to SCRUM-31 until a later explicit approval. |
+| Priority rubric | **P0:** the traveler cannot tell whether a stay was reserved, or the evidenced submit path has no outcome (confirmation / post-submit state). **P1:** the traveler cannot see how a specific hotel is chosen, or a visible field has no shown format or failure state. **P2:** absent content that does not change booking integrity (for example hero slides 02 and 03). |
+| Question owners | Jira assignee is empty. Owner for every open question is the **product owner** role. Due is **before Stage 2 (Architecture) approval**. A calendar date was not provided (`Not Found`). |
+| Historical app | Do not treat HarborStay routes or the SCRUM-5 map as screenshot evidence. |
 
 ## Functional Requirements
 
-1. The results screen SHALL render an interactive map in addition to the hotel list.
-2. The map SHALL plot one marker per hotel in the **current filtered/sorted result set** that has valid latitude and longitude.
-3. Marker positions SHALL come from mock catalog fields (`lat`, `lng`), not from an external geocoding service.
-4. Clicking (or activating) a marker SHALL show basic hotel details: name, location/area, star rating, and nightly price.
-5. From that marker UI the traveler SHALL be able to **select** the hotel (open hotel details).
-6. From that marker UI the traveler SHALL be able to **proceed to booking** (open room selection for that hotel).
-7. Changing results filters or sort SHALL update map markers so they stay consistent with the list (same hotels; sort need not change geographic position).
-8. When no hotels are available in the current result set, the map area SHALL show an appropriate, visible message and SHALL NOT show hotel markers.
-9. When hotels exist in the list but none have plottable coordinates, the map area SHALL show an appropriate message (no markers).
-10. Existing results list, hotel details, and booking wizard routes SHALL remain usable; the map is an additional selection path, not a replacement of booking.
-11. Map tile usage SHALL include required OpenStreetMap / Leaflet attribution.
+1. The project SHALL keep the canonical screenshot at `docs/baseline/evidence/image-20261103-075923.png` and SHALL treat it as the only UI evidence for this story.
+2. Markdown under `docs/baseline/` SHALL be the source of truth for the inventory, journey map, per-step fields, gap list, and questions list. The web pages SHALL present that same content.
+3. The feature inventory SHALL map each feature to a screen and to the UI evidence (section/control) in the screenshot. It SHALL include only controls visible in the file, at minimum:
+   - Header: Hotel Titan mark and the text “Your next stay starts here” (navigation target is `Not Found` if not visible).
+   - Hero: eyebrow, headline, supporting sentence, hero image and caption, and the visible carousel indicator (only the shown position; other slides are `Not Found`).
+   - Featured properties: Titan City House, Titan Shoreline, and Titan Alpine Lodge, each with the visible short description and location label.
+   - Booking panel: first name, last name, email, room, guests, check-in date, check-out date, phone, and the “Book my stay” button.
+   - The visible statement that booking does not require sign-in.
+4. The inventory SHALL NOT add prices, totals, error messages, extra hotels, extra room types, or extra screens that are not visible in the file.
+5. The journey map SHALL cover search → results → hotel/room selection → guest details → submit → confirmation, including transitions and required inputs. Any step or transition not shown in the screenshot SHALL be marked `Not Found` and listed as a gap. The inline booking form on the home page is the only evidenced guest-details and submit UI.
+6. For each journey step, the field list SHALL name the inputs that are visible and SHALL record expected format and failure state. Where the screenshot shows only a placeholder (for example a date placeholder or an email example) and does not show a validation rule or error, format enforcement and failure state SHALL be `Not Found`.
+7. The gap list SHALL categorize every gap as P0, P1, or P2 using the rubric in Clarifications, with a rationale that cites user impact or booking integrity. From this screenshot the list SHALL include at least:
+   - **P0:** no confirmation (or other post-submit outcome) is shown after “Book my stay”.
+   - **P1:** no distinct search, search-results, or hotel-details step is shown, and no navigation from a featured property card is shown.
+   - **P1:** no failure states are shown for empty or invalid name, email, room, guests, dates, or phone.
+   - **P2:** hero carousel positions other than the one visible frame are not shown.
+8. The questions/assumptions list SHALL include an owner and a due for each item. Until the product owner answers, use the owner and due in Clarifications.
+9. The Python web application SHALL expose the baseline at `GET /baseline` with separate regions for inventory, journey, validations, gaps, and questions. Each region SHALL expose a stable `data-testid`: `baseline-inventory`, `baseline-journey`, `baseline-validations`, `baseline-gaps`, `baseline-questions`.
+10. If the canonical screenshot file is missing, `GET /baseline` SHALL still respond successfully, SHALL show a visible message that the evidence is `Not Found`, and SHALL NOT render invented hotel or form rows. That message SHALL use `data-testid="baseline-evidence-missing"`.
+11. Pages SHALL NOT call Jira or any other external API while rendering the baseline.
+12. Stage 7 SHALL verify the page with Playwright, including the populated baseline and the missing-evidence message.
 
 ## Non-Functional Requirements
 
-1. **Stack:** Implement as a Python web application (Flask + Jinja2 + static JS/CSS unless Architecture revises this with human approval).
-2. **Security:** No API keys, tokens, or credentials in source, templates, tests, or generated docs. Map tiles must not require a committed secret. Do not commit `api-conf.properties` or `.env`.
-3. **Privacy:** Do not collect or persist the traveler’s geolocation. Booking remains mock (no real payments or PAN storage).
-4. **Reliability:** Missing or invalid coordinates SHALL NOT crash the results page; skip the marker and continue.
-5. **Accessibility:** Markers and popup actions SHALL be operable with keyboard and SHALL expose accessible names (e.g. hotel name). Empty-state copy SHALL be available to assistive technology (not color-only).
-6. **Performance:** Plotting the mock catalog (~12 hotels) on the map SHALL complete without blocking the existing ≤200 ms filter/sort path beyond a documented, testable budget (default: marker refresh within **500 ms** of a filter change on the mock set).
-7. **Observability:** Client-side failures to load map assets SHALL surface a visible fallback message in the map region (not a blank page).
-8. **Testability:** Primary map controls SHALL have stable `data-testid` hooks for Playwright (map container, marker, popup, view-details, book, empty message).
-9. **Verification:** Happy path and empty-map path SHALL be covered by Playwright E2E in Stage 7.
+1. **Stack:** Deliver a Python web application. Framework choice is confirmed in Architecture. The baseline viewer is documentation of the screenshot, not a second booking engine.
+2. **Security:** No API keys, tokens, passwords, or `api-conf.properties` contents in source, templates, tests, markdown, or the screenshot commit. Do not embed Jira credentials in image URLs.
+3. **Integrity of evidence:** Analysis text SHALL quote or describe only what is visible. Unknown fields use the literal `Not Found`. Do not fabricate acceptance data to fill gaps.
+4. **Reliability:** A missing evidence file SHALL NOT raise an unhandled error to the traveler. The missing-evidence message in Functional Requirement 10 is the failure behavior.
+5. **Accessibility:** Region headings and the inventory table SHALL have text labels available to assistive technology. Priority SHALL NOT be conveyed by color alone.
+6. **Performance:** `GET /baseline` SHALL be renderable from local files only and SHALL return within 2 seconds on a local run with the committed markdown and PNG.
+7. **Privacy:** Do not collect booking submissions. The form on the screenshot is documented, not wired to storage.
+8. **Testability:** Playwright locators SHALL use the `data-testid` values in Functional Requirement 9 and 10.
+9. **Verification:** Stage 7 covers the happy path (regions populated from `docs/baseline/`) and the missing-screenshot path.
 
 ## Acceptance Criteria
 
-- [ ] On `/` or `/results`, an interactive map is visible alongside the hotel list.
-- [ ] Each hotel in the current filtered set with valid `lat`/`lng` appears as a map marker.
-- [ ] Activating a marker shows name, location/area, star rating, and nightly price.
-- [ ] From the marker UI the user can open that hotel’s details page.
-- [ ] From the marker UI the user can open that hotel’s booking room-selection page.
-- [ ] When filters yield zero hotels, the map region shows an appropriate message and zero hotel markers.
-- [ ] Hotels missing coordinates do not produce a marker and do not break the page.
-- [ ] No secrets appear in the repo or in documentation generated for this story.
-- [ ] Playwright can drive: results → marker → details or booking, and results → empty filters → empty map message.
+- [ ] `docs/baseline/evidence/image-20261103-075923.png` is the only UI evidence, and the inventory lists the header, hero, three Titan properties, booking fields, and “Book my stay” from that file.
+- [ ] The inventory does not contain a control or screen that is absent from that file.
+- [ ] `GET /baseline` shows inventory, journey, validations, gaps, and questions, matching the markdown source, with the `data-testid` values named above.
+- [ ] The journey map includes search → results → hotel/room selection → guest details → submit → confirmation, and marks steps that are not in the screenshot as `Not Found`.
+- [ ] Visible fields are listed with format and failure state, using `Not Found` when the screenshot does not show a rule or error.
+- [ ] Gaps include the P0 confirmation gap, the P1 selection and validation gaps, and the P2 carousel gap, each with a written rationale.
+- [ ] Every open question has owner “product owner” and due “before Stage 2 (Architecture) approval”.
+- [ ] When the evidence PNG is removed, the page shows `baseline-evidence-missing` and does not invent hotels or form fields.
+- [ ] No secrets appear in the repo or in documentation for this story.
+- [ ] Playwright can open `/baseline` and assert the five regions, and can assert the missing-evidence message.
 
 ## Out of Scope
 
-- Real-time hotel inventory, pricing APIs, or paid map platforms (Google Maps, Mapbox) unless Architecture is later approved to change this.
-- User accounts, authentication, and saved favorites.
-- Geolocation (“hotels near me”), driving directions, and map clustering.
-- Editing or creating hotels (catalog remains mock/static).
-- Changing the three-step booking, payment simulation, or confirmation flows except as needed to keep navigation from the map working.
-- Mobile-native apps; responsive web is in scope only as the existing portal layout allows.
+- Reimplementing Hotel Titan (live search, room inventory, payment, or a working reservation).
+- Using the HarborStay product UI or the SCRUM-5 map as evidence.
+- Additional screenshots, screen recordings, or stakeholder review meetings.
+- Writing a Jira comment or attaching the artifacts to SCRUM-31 in this stage.
+- Accounts, sign-in (the screenshot says none is required), saved trips, and pricing rules that are not visible.
+- Changing SCRUM-5 map behavior except where a later approved design says the baseline viewer must coexist with the existing app.
 
 ## Open Questions (if any remain)
 
-1. Confirm the assumed **list + map** results layout vs list/map toggle vs a dedicated `/map` route.
-2. Confirm **Leaflet + OSM** vs a keyed commercial map SDK.
-3. Confirm popup **Book** goes to `/book/<id>/room` vs details-only selection.
-4. If the local workspace is missing the prior HarborStay application code, Architecture must state whether this story **extends** that app (restore/reimplement baseline) or delivers **map-only** on a new Flask app.
+| ID | Question | Working assumption | Owner | Due |
+|----|---|---|---|---|
+| Q1 | Do distinct Search Results, Hotel Details, Checkout, and Confirmation screens exist outside this file? | They are `Not Found`. The inline “Book your stay” form is the only checkout UI. Do not invent the other screens. | Product owner | Before Stage 2 approval |
+| Q2 | Do the featured property cards or “Your next stay starts here” navigate anywhere? | Targets are `Not Found`. Cards are inventory items only. | Product owner | Before Stage 2 approval |
+| Q3 | Which fields are required, and what date, email, phone, room, and guest formats are enforced? | Record visible placeholders only. Enforcement and errors are `Not Found`. | Product owner | Before Stage 2 approval |
+| Q4 | Who is the named owner, and is there a calendar due date? | Role owner is product owner. Assignee on SCRUM-31 is empty. Calendar date is `Not Found`. | Product owner | Before Stage 2 approval |
+| Q5 | Should Stage 2 replace `architecture.md` for a baseline viewer that coexists with HarborStay? | Yes. SCRUM-5 architecture is historical and is not the approved design for this story. | Product owner | Before Stage 2 approval |

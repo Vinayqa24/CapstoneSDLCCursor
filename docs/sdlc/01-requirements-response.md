@@ -2,33 +2,40 @@
 
 ## Summary
 
-Captured [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5) (view hotels on a map) into `requirements.md`. The story is traveler-facing: plot available hotels as map markers, show basic details on marker activation, allow selection and navigation into booking, and show an empty-state message when no hotels are available.
+Captured [SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31) (screenshot-driven baseline inventory and booking journey map) into `requirements.md`. The product owner wants an evidence-based feature inventory, an end-to-end booking journey, field and failure notes, and P0/P1/P2 gaps.
 
-Clarifying questions were interrupted; the user asked to **Continue**. Documented defaults (list + map on results, Leaflet + OSM, mock `lat`/`lng`, popup → details and booking) are in the Clarifications section of `requirements.md` and remain reversible before Architecture approval.
+Clarifying questions were answered before writing the file. Evidence is the single Jira screenshot only. Both ticket attachments are the same PNG; the repo copy is `docs/baseline/evidence/image-20261103-075923.png`. That image is one Hotel Titan home page (hero, three property cards, inline booking form). Search Results, Hotel Details, a separate Checkout page, and Confirmation are not in the image and are recorded as questions, not invented screens.
+
+Delivery for later stages is a Python web app that presents markdown under `docs/baseline/` at `GET /baseline`, verified with Playwright. This stage does not implement that app. Jira is not updated until a later approval.
+
+This starts a new cycle. SCRUM-5 artifacts already in the tree stay as history and are not the approved design for SCRUM-31.
 
 ## Artifacts
 
 - `requirements.md` — primary Stage 1 artifact
+- `docs/baseline/evidence/image-20261103-075923.png` — canonical screenshot (copy of Jira attachment 10000; attachment 10001 is identical)
 - `docs/sdlc/01-requirements-response.md` — this file
 
 ## Key Decisions
 
-- New SDLC cycle for SCRUM-5 (no prior `requirements.md` in the workspace).
-- Delivery remains a **Python web application** with **Playwright** verification in Stage 7.
-- Map is an additional path on HarborStay results, not a rewrite of the booking wizard.
-- No commercial map API keys in the repo; OSM attribution required.
-- Secrets stay out of docs and source (`api-conf.properties` is gitignored).
+- New SDLC cycle for SCRUM-31 on top of the completed SCRUM-5 branch. Stage 2 must rewrite the architecture for this story.
+- Evidence is screenshot-only. HarborStay is not a source for the inventory.
+- Unknown controls, formats, and screens are `Not Found`.
+- Gap rubric: P0 confirmation/outcome, P1 hotel selection and unseen validation, P2 non-booking content such as unseen carousel frames.
+- Question owner is the product owner role; due is before Stage 2 approval. No calendar date was provided.
+- Python web application plus Playwright remains the delivery and verification path. The app will display the baseline; it will not reimplement Hotel Titan booking.
+- Secrets stay out of docs and source. `api-conf.properties` is gitignored and was not copied into artifacts.
 
 ## Open Questions / Blockers
 
-- Human must confirm assumed UX defaults (layout, Leaflet, Book vs details).
-- Local workspace currently has **no `.git` directory** and **no application source** (`app/`, tests). Stage 2 must decide: restore/extend HarborStay vs greenfield Flask app that still matches README routes.
-- GitHub REST `POST /pulls` returned **403 Resource not accessible by personal access token**. Branches were pushed; open the compare URL below or grant the token **Pull requests: write**.
+- Q1–Q5 in `requirements.md` remain open for the product owner. Working assumptions are enough to leave Stage 1.
+- SCRUM-31 has no Jira assignee.
+- Linking the artifacts back to the Jira story is intentionally deferred.
 
 ## PR
 
-pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-1-scrum-5-requirements?expand=1
+pending
 
 ## Ready for Human Approval
 
-Yes. Please confirm `requirements.md` (including assumed defaults) before Stage 2 Architecture. Reply **approved** / **proceed to architecture**, or list changes.
+Yes. Please confirm `requirements.md` (screenshot-only evidence, `/baseline` viewer, and the P0/P1/P2 rubric) before Stage 2 Architecture. Reply **approved** / **proceed to architecture**, or list changes.
