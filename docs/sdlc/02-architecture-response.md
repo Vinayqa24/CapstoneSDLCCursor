@@ -2,7 +2,9 @@
 
 ## Summary
 
-Proposed HarborStay architecture for approved [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5): keep **Flask + Jinja2 + vanilla JS**, restore/extend the existing booking portal if source is missing, and add a **Leaflet + OpenStreetMap** map on the results page that consumes the same filtered mock catalog as the list. Marker popups navigate to hotel details and booking room selection. No map API keys, no geolocation, no new JSON API.
+Replaced the SCRUM-5 architecture with a design for approved [SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31). The existing Flask app gains `GET /baseline`, which renders inventory, journey, validations, gaps, and questions from markdown under `docs/baseline/`. Regions render only when `docs/baseline/evidence/image-20261103-075923.png` is present. HarborStay routes and the Leaflet map stay as they are and are not used as evidence.
+
+Stage 1 approval adopted Q1–Q5. This stage does not invent the missing Hotel Titan screens.
 
 ## Artifacts
 
@@ -12,22 +14,24 @@ Proposed HarborStay architecture for approved [SCRUM-5](https://vinayqa24-179215
 
 ## Key Decisions
 
-- **Extend HarborStay**, do not ship a map-only app (resolves requirements open question 4).
-- Flask over FastAPI/Django: HTML multi-page app with a mock catalog, no ORM or public API.
-- Leaflet vendored under static assets; OSM tiles at runtime; attribution required.
-- Map is a view of `visibleHotels[]` from the existing filter/sort pipeline.
-- Playwright contracts: `results-map`, `map-marker`, `map-popup`, `map-view-details`, `map-book`, `map-empty`, `map-fallback`.
-- Popup content via escaped text, not unsanitized HTML.
+- Stay on **Flask + Jinja2**. FastAPI and Django are a worse fit for one HTML page on an existing Flask app.
+- Markdown pipe tables are the source of truth. A small reader returns cells; Jinja autoescape prints them. No new runtime dependency and no markdown-to-HTML step.
+- Missing PNG: HTTP 200, `baseline-evidence-missing`, five regions omitted.
+- Missing or invalid markdown for one region: that region shows `Not Found`; other regions still render.
+- Evidence URL serves only the canonical filename. No path from the query string.
+- Playwright in Stage 7 uses `data-testid` hooks and a test `BASELINE_DIR` for the missing-file case.
+- One header link (`baseline-nav`) makes the page discoverable. Map and booking behavior are unchanged.
 
 ## Open Questions / Blockers
 
-- Stage 1 GitHub PR create still 403 unless the token has Pull requests: write; Stage 2 will use the same push + compare-URL fallback if needed.
-- Baseline UI must be reimplemented in Stage 5 if `app/` is absent from the workspace.
+- Q1–Q4 remain displayed as product-owner assumptions (no extra screens, no guessed validation, no calendar date). They do not block this design.
+- GitHub pull-request creation returned 403 on Stage 1. Stage 2 uses the same push and compare-URL path if create fails again.
+- `gh` is not installed on this machine.
 
 ## PR
 
-pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-2-scrum-5-architecture?expand=1
+pending
 
 ## Ready for Human Approval
 
-Yes. Confirm `architecture.md` (Flask + Leaflet on results, restore HarborStay baseline) before Stage 3 Design Review. Reply **approved** / **proceed to design review**, or list changes.
+Yes. Confirm `architecture.md` (Flask baseline viewer, markdown tables, HarborStay routes unchanged) before Stage 3 Design Review. Reply **approved** / **proceed to design review**, or list changes.

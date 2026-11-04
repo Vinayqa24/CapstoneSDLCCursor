@@ -2,82 +2,69 @@
 
 ## Overview
 
-HarborStay remains a **Python Flask + Jinja2** hotel booking portal. [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5) adds an **interactive results map**: the same mock catalog that drives the hotel list is plotted as Leaflet markers (OpenStreetMap tiles, no map API key). Marker popups show basic details and navigate to existing **hotel details** and **booking (room step)** routes.
+[SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31) adds a **baseline viewer** to the existing Python Flask app. `GET /baseline` renders the feature inventory, booking journey, field and failure notes, P0/P1/P2 gaps, and open questions from markdown files under `docs/baseline/`. The only UI evidence is `docs/baseline/evidence/image-20261103-075923.png` (Hotel Titan home page). The page documents that screenshot. It does not take bookings and it does not call Jira.
 
-**Baseline decision (open question 4):** Stage 5 **extends HarborStay**, not a map-only app. If application source is missing in the workspace, implementation **re-establishes** the README routes (results, details, three-step booking, confirmation) with a mock catalog, then adds the map. The booking wizard is unchanged except for inbound links from the map.
+HarborStay routes (`/`, `/results`, hotel details, the three-step book flow, confirmation, Leaflet map) stay as they are. They are not evidence for the inventory. This document replaces the SCRUM-5 architecture as the approved design for the new cycle. SCRUM-5 map behavior is unchanged.
 
-There is no database, no authentication, and no real payment gateway. Catalog, filters, sort, map markers, and booking draft live in the browser (`sessionStorage` for the draft). Flask serves pages and static assets only.
+Stage 1 approval adopted the working assumptions in `requirements.md` Q1–Q5. Distinct search, results, hotel-details, checkout, and confirmation screens are `Not Found`. Navigation targets and validation rules that are not visible in the PNG are `Not Found`. Question owner remains the product owner role. There is no calendar due date.
 
 ## Goals & Constraints (from requirements)
 
 | Goal / constraint | Architectural implication |
 |----|---|
-| List + map on `/` and `/results` | One results template; list and map share one filtered dataset |
-| Markers for hotels with valid `lat`/`lng` | Catalog schema includes coordinates; map layer skips invalid rows |
-| Popup: name, area, rating, price | Popup template bound to catalog fields only |
-| View details + Book from popup | Client navigation to `/hotels/<id>` and `/book/<id>/room` |
-| Empty vs no-coords | Two distinct messages: `map-empty` (zero hotels) and `map-no-coords` (hotels in list, none plottable) |
-| Filters update markers | Map is a subscriber of the results filter pipeline (same array as the list) |
-| No map API keys; OSM attribution | Leaflet + OSM; attribution control on; no Google/Mapbox |
-| No geolocation | Map never calls `navigator.geolocation` |
-| ≤500 ms marker refresh on mock set | Synchronous in-memory filter + Leaflet layer replace; no geocode |
-| Playwright E2E | Stable `data-testid`s; Flask test server on a known port |
-| No secrets in repo | `api-conf.properties` gitignored; tiles require no committed secret |
-| Restore vs greenfield | Reimplement HarborStay baseline + map (not a new product) |
+| One canonical PNG | A fixed evidence path. No user-supplied filenames. |
+| Markdown is the source of truth | Templates contain no hotel names, fields, gaps, or questions. Request-time reads fill the regions. |
+| Inventory only what the PNG shows | Content is authored in markdown from that file. The renderer does not infer extra screens. |
+| Journey includes steps that are `Not Found` | Journey markdown has one row per required step; missing steps stay in the file as `Not Found` plus a gap row. |
+| P0 / P1 / P2 with rationale | Gap markdown carries priority text. The page prints the priority word, not color alone. |
+| `GET /baseline` and five `data-testid` regions | One Jinja page. Regions: `baseline-inventory`, `baseline-journey`, `baseline-validations`, `baseline-gaps`, `baseline-questions`. |
+| Missing PNG returns 200, message, no invented rows | If the PNG is absent, render `baseline-evidence-missing` and do not render the five regions. |
+| No external calls while rendering | Local filesystem only. The app does not read `api-conf.properties`. |
+| Response within 2 seconds | Five small files, read on each request. No network and no cache required. |
+| Playwright in Stage 7 | Stable test ids. Tests override the baseline directory so the missing-file case does not delete the committed PNG. |
+| Coexist with HarborStay | New route and template only. Results, map, and booking handlers are not modified. |
+| No booking storage | No POST, no session draft, no database for this page. |
 
 ## Component Diagram (mermaid)
 
 ```mermaid
 flowchart TB
-  subgraph browser [Browser]
-    ResultsPage[Results page: list + map]
-    FilterSort[Filter / sort]
-    Catalog[Mock catalog JS]
-    MapView[Leaflet map view]
-    Popup[Marker popup]
-    Details[Hotel details]
-    Booking[Booking wizard]
-    Draft[sessionStorage draft]
-    ResultsPage --> FilterSort
-    Catalog --> FilterSort
-    FilterSort --> ResultsPage
-    FilterSort --> MapView
-    MapView --> Popup
-    Popup -->|View details| Details
-    Popup -->|Book| Booking
-    Details --> Booking
-    Booking --> Draft
+  subgraph repo [Repository files]
+    PNG[evidence PNG]
+    MD[docs/baseline markdown tables]
   end
-  subgraph flask [Flask app]
-    Routes[Jinja routes]
-    Static[Static CSS/JS + vendored Leaflet]
-    Routes --> ResultsPage
-    Routes --> Details
-    Routes --> Booking
-    Static --> MapView
+  subgraph flask [Existing Flask app]
+    Routes[HarborStay routes unchanged]
+    BaselineRoute["GET /baseline"]
+    Loader[Baseline loader]
+    Template[baseline.html]
+    BaselineRoute --> Loader
+    Loader --> PNG
+    Loader --> MD
+    Loader --> Template
   end
-  OSM[OpenStreetMap tile servers]
-  MapView --> OSM
+  Browser[Browser]
+  Playwright[Playwright Stage 7]
+  Browser --> BaselineRoute
+  Browser --> Routes
+  Playwright --> BaselineRoute
 ```
 
 ```mermaid
 sequenceDiagram
-  actor Traveler
-  participant Results as Results UI
-  participant Filter as Filter/sort
-  participant Map as Leaflet map
-  participant Flask as Flask routes
-  Traveler->>Flask: GET / or /results
-  Flask->>Results: HTML shell + assets
-  Results->>Filter: load catalog, apply filters
-  Filter->>Results: render list
-  Filter->>Map: plot markers with valid lat/lng
-  alt zero hotels or zero plottable coords
-    Map->>Traveler: empty-state message, no markers
-  else hotels with coordinates
-    Traveler->>Map: activate marker
-    Map->>Traveler: popup name, area, rating, price
-    Traveler->>Flask: GET /hotels/id or GET /book/id/room
+  actor Reviewer
+  participant Flask as GET /baseline
+  participant Loader as Baseline loader
+  participant Disk as docs/baseline
+  Reviewer->>Flask: open /baseline
+  Flask->>Loader: load fixed filenames
+  Loader->>Disk: stat canonical PNG
+  alt PNG missing
+    Loader-->>Flask: evidence Not Found
+    Flask-->>Reviewer: 200 and baseline-evidence-missing
+  else PNG present
+    Loader->>Disk: read five markdown tables
+    Flask-->>Reviewer: 200 and five regions
   end
 ```
 
@@ -85,125 +72,92 @@ sequenceDiagram
 
 | Component | Responsibility |
 |----|---|
-| Flask app factory (`app/`, `wsgi.py`) | Create app, register routes, serve templates and static files |
-| Route handlers | Render results, hotel details, booking steps, confirmation; unknown hotel id → in-page not-found (HTTP 200 with empty state, consistent with current README smoke tests) |
-| Jinja templates | Results split layout (list + map region); details and booking pages unchanged in role |
-| Mock catalog | Static hotel records including `id`, name, area, stars, price, rooms, **`lat`/`lng`** (nullable) |
-| Filter/sort module | In-memory filter of the catalog; emits the current result set to list and map |
-| Map view module | Init Leaflet (`keyboard: true`), `L.layerGroup` of **DivIcon** markers (`data-testid="map-marker"`, `data-hotel-id`, accessible name = hotel name), popups built with DOM/`textContent` (no catalog `innerHTML`), `fitBounds` with padding, empty/no-coords/fallback regions |
-| Vendored Leaflet | JS/CSS served from `app/static/` so the map library does not require an API key or a unique CDN contract |
-| OSM tiles | Raster tiles at runtime; attribution visible; no app-side cache required for ~12 hotels |
-| Booking draft | Existing `hotelBookingDraft` in `sessionStorage`; map never writes it; room step hydrates from URL `hotel_id` |
-| Route tests (`pytest`) | App factory and GET 200 for known routes |
-| Playwright E2E | Results → marker → details; results → marker → booking; empty filters → `map-empty`; optional fixture with no coords → `map-no-coords` |
+| `app/__init__.py` `create_app` | Builds the Flask app. Sets `BASELINE_DIR` to the repo `docs/baseline` directory unless a test overrides it. |
+| `app/routes.py` | Keeps current HarborStay routes. Adds `GET /baseline` and `GET /baseline/evidence`. |
+| `app/baseline.py` | Resolves only the known markdown names and the canonical PNG. Parses pipe tables into cell strings. Returns a view model or an evidence-missing flag. Does not read HarborStay catalog data. |
+| `app/templates/baseline.html` | Renders regions from the view model with the required `data-testid` values. Jinja autoescape prints cell text. Extends `base.html`. |
+| `app/templates/base.html` | Adds one text link to `/baseline` (`data-testid="baseline-nav"`). Brand, results, and map markup stay. |
+| `docs/baseline/*.md` | Source of truth for the five regions. Authored only from the screenshot and the approved `Not Found` rules. |
+| `docs/baseline/evidence/image-20261103-075923.png` | Sole UI evidence. Presence gates whether regions render. |
+| Playwright specs in `tests/e2e/` | Stage 7 drives `/baseline` for the populated page and for a config whose evidence file is absent. |
 
 ## Data Flow
 
-1. Traveler requests `/` or `/results`. Flask returns HTML plus catalog, results, and map scripts.
-2. Catalog module loads the mock array in the browser.
-3. Filter/sort produces `visibleHotels[]` (same source for the list).
-4. Map module (single subscriber of `visibleHotels[]`; do not re-filter the catalog independently):
-   - If `visibleHotels.length === 0` → show `map-empty`, hide `map-no-coords`, clear markers.
-   - Else keep hotels whose `lat`/`lng` are finite and in range (lat ∈ [-90, 90], lng ∈ [-180, 180]); if none plottable → show `map-no-coords`, hide `map-empty`, clear markers.
-   - Else hide both empty regions; add one DivIcon marker per plottable hotel; on activate, popup fields via `textContent`; **View details** / **Book** are same-origin GET links (`/hotels/<id>`, `/book/<id>/room`).
-5. Filter changes re-run steps 3–4. Marker refresh target: **≤500 ms** on the mock catalog. List filter/sort remains a synchronous in-memory pass (existing ≤200 ms guidance).
-6. Booking wizard initializes draft from the **URL hotel id** (and catalog lookup) when entered from the map **Book** link, same as from details. Map does not write `hotelBookingDraft` itself.
-7. Booking wizard and confirmation stay on existing paths; map is an alternate entry, not a parallel booking state machine.
+1. The reviewer requests `GET /baseline`. Flask does not read the query string for file paths.
+2. The loader stats `BASELINE_DIR/evidence/image-20261103-075923.png`.
+3. If that file is missing or not a file, the loader returns evidence missing. The template responds **200** with `data-testid="baseline-evidence-missing"` and the words `Not Found`. The five region test ids are not rendered. Hotel names and form labels from markdown are not sent.
+4. If the PNG exists, the loader reads, in order: `inventory.md`, `journey.md`, `validations.md`, `gaps.md`, `questions.md`.
+5. Each file is decoded as UTF-8. A GitHub pipe table becomes a list of header and row cells. A missing file, unreadable file, or file with no table becomes a single visible `Not Found` line inside that region. The other regions still render. The loader does not invent hotel or form rows to fill a gap.
+6. Jinja prints the cells and shows the PNG through `GET /baseline/evidence`, which serves only that filename from `BASELINE_DIR/evidence`.
+7. HarborStay pages never call the loader. The baseline page never reads the mock catalog or `sessionStorage` booking draft.
+
+### Markdown table contract
+
+Implementation writes these files. Stage 2 does not author the full inventory; Stage 5 does. Columns:
+
+| File | Columns |
+|----|---|
+| `inventory.md` | Feature, Screen, Section, Control, Evidence |
+| `journey.md` | Step, Evidenced, Transition, Required inputs |
+| `validations.md` | Step, Field, Visible placeholder, Format, Failure state |
+| `gaps.md` | ID, Priority, Gap, Rationale |
+| `questions.md` | ID, Question, Assumption, Owner, Due |
+
+Journey steps, in order: search, results, hotel/room selection, guest details, submit, confirmation. Guest details and submit record the inline “Book your stay” form. The other steps are `Not Found` unless the screenshot shows them. Gap rows include at least the approved P0 confirmation gap, the P1 selection and validation gaps, and the P2 unseen carousel frames. Priority cells are the text `P0`, `P1`, or `P2`.
 
 ## Technology Choices (with rationale)
 
 | Choice | Rationale |
 |----|---|
-| **Flask + Jinja2 + vanilla JS** | Matches approved requirements and HarborStay README; multi-page UI without a SPA rewrite |
-| Not FastAPI | No JSON API surface required for this story; HTML routes are the product |
-| Not Django | No ORM, admin, or auth; Django would be heavier than the mock catalog warrants |
-| **Leaflet 1.x (vendored)** | OSI-friendly, no API key, keyboard-focusable markers, popups, attribution control |
-| **OpenStreetMap** tile URL | No committed secret; standard Leaflet OSM template; keep attribution |
-| Not Google Maps / Mapbox | Out of scope; would require keys and billing |
-| Client-side catalog | Existing pattern; coordinates are static fields, not a geocoding pipeline |
-| **pytest** + **Playwright** | Route smoke + Stage 7 browser E2E against the Flask UI |
-| No database | Mock catalog is sufficient for demo and tests |
+| **Flask 3** (already in `requirements.txt`) | The repo is a Flask multi-page app. SCRUM-31 needs one more server-rendered page, not an API. A second framework would split the process. |
+| **Not FastAPI** | FastAPI fits JSON services. This page is HTML with no request body. |
+| **Not Django** | Django’s ORM, admin, and project layout are extra weight for five local files and no database. |
+| **Jinja2 autoescape** | Cell text is data, not HTML. Autoescape is the XSS boundary. |
+| **Hand-rolled pipe-table reader** | The contract is five tables. A markdown-to-HTML library is unnecessary and would be another dependency that can emit raw HTML. |
+| **No new runtime dependency** | Flask, pytest, Playwright, and gunicorn already cover serve and Stage 7. |
+| **Playwright** | Stage 7 runs browser checks against `GET /baseline` using the `data-testid` hooks. Existing `pytest-playwright` stays the runner. |
+| **Local files, not a database** | The knowledge base for this story is the git repo. Requirements defer Jira updates. |
 
 ## Interfaces / Contracts
 
-### HTTP (Flask)
-
-| Method | Path | Contract |
-|----|----|----|
-| GET | `/`, `/results` | Results page: list + map region (`data-testid="results-map"`) |
-| GET | `/hotels/<hotel_id>` | Hotel details; unknown id → in-page not-found |
-| GET | `/book/<hotel_id>/room` | Booking step 1 (map **Book** target) |
-| GET | `/book/<hotel_id>/guest` | Booking step 2 |
-| GET | `/book/<hotel_id>/payment` | Dummy payment |
-| GET | `/confirmation` | Confirmation |
-
-No new REST JSON API is required. Map data is embedded in the catalog script (or a static JSON file under `app/static/` with the same schema).
-
-### Catalog record (minimum)
-
-```text
-id, name, area, stars, nightlyPrice, lat: number | null, lng: number | null
-```
-
-Invalid, missing, or out-of-range `lat`/`lng` → list row allowed, marker omitted. A coordinate is plottable only if both are finite numbers and lat ∈ [-90, 90], lng ∈ [-180, 180].
-
-### Playwright testids (Stage 7)
-
-| `data-testid` | Element |
+| Interface | Contract |
 |----|---|
-| `results-map` | Map container |
-| `map-marker` | Marker **button/div** (DivIcon), `data-hotel-id`, accessible name = hotel name |
-| `map-popup` | Popup root |
-| `map-view-details` | Details link |
-| `map-book` | Book link |
-| `map-empty` | Zero hotels in the current filter set |
-| `map-no-coords` | Visible hotels exist but none are plottable |
-| `map-fallback` | Leaflet asset-load failure (list still works) |
+| `GET /baseline` | **200** `text/html`. With the PNG present: five regions with `data-testid` `baseline-inventory`, `baseline-journey`, `baseline-validations`, `baseline-gaps`, `baseline-questions`. With the PNG absent: `baseline-evidence-missing` and those five ids absent. |
+| `GET /baseline/evidence` | **200** `image/png` when the canonical file exists. **404** with a short text body `Not Found` when it does not. No other evidence names are accepted. |
+| `BASELINE_DIR` | App config. Default: `<repo>/docs/baseline`. Tests set it to a temporary directory. |
+| Evidence filename | Constant `image-20261103-075923.png`. Not taken from the request. |
+| Header link | `data-testid="baseline-nav"` points at `/baseline`. |
+| HarborStay | Existing paths and map test ids stay. This story does not change their responses. |
+| Playwright | Happy path asserts the five regions and visible evidence strings from the markdown (including Titan City House, “Book my stay”, a `P0` gap, and a `Not Found` journey step). Missing-evidence path uses a `BASELINE_DIR` without the PNG and asserts `baseline-evidence-missing` plus the absence of those hotel and form strings. |
 
-Results filters used in E2E MUST be able to produce a **zero-hotel** set (existing filter controls, or a documented test-only filter combination). Playwright locators MUST target DivIcon markers and popup links, **not** OSM tile pixels. Tests MAY stub tile HTTP.
-
-### External
-
-| System | Use |
-|----|---|
-| OSM tile CDN | Runtime imagery only; tests may stub tiles |
-| Jira / GitHub | SDLC only via `api-conf.properties`; **not** used by the web app |
+There is no JSON API and no write API.
 
 ## Security & Secret Handling
 
-- Web app has **no** Jira/GitHub/map API keys.
-- Do not commit `api-conf.properties`, `.env`, or tokens.
-- OSM tiles are public; still do not proxy secrets through Flask.
-- Do not call geolocation APIs; do not store traveler location.
-- Booking remains simulated; no PAN/CVV collection or storage.
-- Popup DOM must be built with **`textContent` / `createElement`** only. Do not assign catalog strings to `innerHTML`.
-- Generated docs never echo credentials; missing fields stay `Not Found`.
+- The baseline loader reads only `BASELINE_DIR` and the five fixed markdown names plus one fixed PNG name. It does not join user input onto a path.
+- `GET /baseline/evidence` does not accept a filename parameter.
+- Markdown cells are inserted as text under Jinja autoescape. The table reader strips a leading or trailing pipe and ignores separator rows. It does not interpret HTML or script in cells.
+- The running app does not load `api-conf.properties`, Jira, or GitHub tokens. Rendering makes no outbound HTTP call.
+- The screenshot is a static product image. Do not add credentials to markdown, templates, tests, or image URLs.
+- `api-conf.properties` stays gitignored. Stage 5 must not commit it.
 
 ## Failure Modes & Resilience
 
-| Failure | Behavior |
+| Condition | Behavior |
 |----|---|
-| Leaflet JS/CSS fails to load | Show `map-fallback` in the map region; list still works |
-| OSM tiles fail | Markers and popups still work; attribution remains; optional tile-error notice if Leaflet reports it |
-| Empty filter result | `map-empty` visible, `map-no-coords` hidden, zero markers |
-| All visible hotels lack plottable coords | `map-no-coords` visible, `map-empty` hidden, zero markers, list still shows hotels |
-| Invalid or out-of-range coord on one hotel | Skip that marker; plot the rest; page does not throw |
-| Unknown hotel id in URL | Existing in-page not-found; no crash |
-| Missing catalog file | Visible results error; map empty/fallback; Flask logs a non-secret reason |
-| Playwright without tiles | Intercept tile URLs or allow OSM; assertions target markers/popup/empty, not pixel tiles |
+| Canonical PNG missing | **200**. `baseline-evidence-missing` shows `Not Found`. Five regions are not rendered. |
+| One markdown file missing or not a table | **200** if the PNG exists. That region shows `Not Found`. Other regions render. No synthetic hotel or form rows. |
+| Markdown not valid UTF-8 | That region shows `Not Found`. The request still returns **200**. |
+| Evidence route when PNG is missing | **404** body `Not Found`. It does not fall back to another image. |
+| HarborStay catalog or map error | Unrelated. Baseline does not import that data, so a catalog failure does not blank `/baseline`. |
+| Request tries to choose a file | Ignored. Paths are constants and `BASELINE_DIR` config only. |
+
+Unhandled exceptions from the loader are not the intended missing-file path. The loader catches file absence, decode errors, and malformed tables and returns `Not Found` for the affected region.
 
 ## Open Trade-offs
 
-| Topic | Decision | Residual |
-|----|----|----|
-| Restore HarborStay vs map-only Flask | **Restore/extend HarborStay** (baseline routes + map) | Stage 5 effort includes baseline UI if source is absent |
-| List+map vs toggle vs `/map` | **Split list+map** on results (approved Stage 1 default) | Dense layout on small viewports; responsive stacking allowed |
-| Leaflet+OSM vs commercial SDK | **Leaflet + OSM** | Tile availability depends on OSM; no SLA |
-| Book → room step vs details-only | **Both** View details and Book (room) | Duplicate CTAs vs details page |
-| Vendor Leaflet vs CDN | **Vendor in `app/static`** | Pin version + LICENSE in impl plan |
-| Marker DOM | **DivIcon** with testids (not default pin image) | Slightly custom CSS vs Leaflet default pin |
-| Empty copy | **Two** regions (`map-empty` vs `map-no-coords`) | Slightly more UI copy |
-| Catalog in JS vs Flask-injected JSON | JS module (current HarborStay style) | Either is fine if schema matches |
-| Clustering | Out of scope | ~12 hotels; revisit if catalog grows |
-
-Stage 7 will run Playwright against this UI (happy path marker → details/booking; empty map). Design review should challenge Leaflet vendoring, empty-state copy, and baseline-restore scope only if they threaten the acceptance criteria.
+1. **Hide all five regions when the PNG is missing.** The alternative is a banner plus the markdown. Hiding the regions matches “do not render invented hotel or form rows” when evidence is gone, including rows that were typed from the screenshot.
+2. **Pipe-table reader instead of a markdown library.** Prose outside the table is ignored except the file’s first heading, which is the region heading. Rich markdown is out of scope.
+3. **One header link to `/baseline`.** The page is also reachable by URL alone. The link does not change results, map, or booking behavior.
+4. **Q1–Q4 stay open in the questions table** with the Stage 1 assumptions. Architecture does not invent screens, navigation targets, formats, or a calendar date. A later product-owner answer updates `questions.md` and, if needed, the other tables. It does not require a new framework.
+5. **HarborStay and Hotel Titan share one Flask process.** They are different products on different routes. Splitting processes is unnecessary for a read-only page.
