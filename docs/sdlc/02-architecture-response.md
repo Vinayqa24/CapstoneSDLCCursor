@@ -30,7 +30,11 @@ Stage 1 approval adopted Q1–Q5. This stage does not invent the missing Hotel T
 
 ## PR
 
-pending
+pending — `gh` is not installed, and GitHub `POST /repos/Vinayqa24/CapstoneSDLCCursor/pulls` returned **403**. The branch is on the remote. Open:
+
+https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/sdlc/stage-1-scrum-31-requirements...sdlc/stage-2-scrum-31-architecture?expand=1
+
+Base is `sdlc/stage-1-scrum-31-requirements` so the diff is this stage only. Grant the token **Pull requests: write** to create the PR from here.
 
 ## Ready for Human Approval
 
