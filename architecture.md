@@ -72,10 +72,10 @@ sequenceDiagram
 
 | Component | Responsibility |
 |----|---|
-| `app/__init__.py` `create_app` | Builds the Flask app. Sets `BASELINE_DIR` to the repo `docs/baseline` directory unless a test overrides it. |
+| `app/__init__.py` `create_app` | Builds the Flask app. Sets `BASELINE_DIR` to `<parent of the app package>/docs/baseline` unless a test overrides it. The default does not use the process working directory. |
 | `app/routes.py` | Keeps current HarborStay routes. Adds `GET /baseline` and `GET /baseline/evidence`. |
-| `app/baseline.py` | Resolves only the known markdown names and the canonical PNG. Parses pipe tables into cell strings. Returns a view model or an evidence-missing flag. Does not read HarborStay catalog data. |
-| `app/templates/baseline.html` | Renders regions from the view model with the required `data-testid` values. Jinja autoescape prints cell text. Extends `base.html`. |
+| `app/baseline.py` | Resolves only the known markdown names and the canonical PNG, and only if the resolved path stays inside `BASELINE_DIR`. Checks the PNG signature and size. Parses pipe tables into cell strings. Rejects a table whose header or row width does not match the contract. Returns a view model or an evidence-missing flag. Does not read HarborStay catalog data. Logs a reason code only. |
+| `app/templates/baseline.html` | Renders regions from the view model with the required `data-testid` values and fixed headings (Inventory, Journey, Validations, Gaps, Questions). Jinja autoescape prints cell text. The template does not mark cell text as safe. Extends `base.html`. Page title is Baseline. |
 | `app/templates/base.html` | Adds one text link to `/baseline` (`data-testid="baseline-nav"`). Brand, results, and map markup stay. |
 | `docs/baseline/*.md` | Source of truth for the five regions. Authored only from the screenshot and the approved `Not Found` rules. |
 | `docs/baseline/evidence/image-20261103-075923.png` | Sole UI evidence. Presence gates whether regions render. |
@@ -84,12 +84,13 @@ sequenceDiagram
 ## Data Flow
 
 1. The reviewer requests `GET /baseline`. Flask does not read the query string for file paths.
-2. The loader stats `BASELINE_DIR/evidence/image-20261103-075923.png`.
-3. If that file is missing or not a file, the loader returns evidence missing. The template responds **200** with `data-testid="baseline-evidence-missing"` and the words `Not Found`. The five region test ids are not rendered. Hotel names and form labels from markdown are not sent.
-4. If the PNG exists, the loader reads, in order: `inventory.md`, `journey.md`, `validations.md`, `gaps.md`, `questions.md`.
-5. Each file is decoded as UTF-8. A GitHub pipe table becomes a list of header and row cells. A missing file, unreadable file, or file with no table becomes a single visible `Not Found` line inside that region. The other regions still render. The loader does not invent hotel or form rows to fill a gap.
-6. Jinja prints the cells and shows the PNG through `GET /baseline/evidence`, which serves only that filename from `BASELINE_DIR/evidence`.
-7. HarborStay pages never call the loader. The baseline page never reads the mock catalog or `sessionStorage` booking draft.
+2. `BASELINE_DIR` comes from app config. The default is the parent directory of the `app` package plus `docs/baseline`, not the process working directory.
+3. The evidence path is `BASELINE_DIR/evidence/image-20261103-075923.png`. Each markdown path is `BASELINE_DIR` plus one fixed filename. After `resolve()`, the path must still sit inside the resolved `BASELINE_DIR`. A symlink that escapes is missing. The loader does not follow a path the request chose.
+4. Evidence is present only when that path is a regular file, its size is from 1 byte through 2 MiB, and its first eight bytes are the PNG signature `89 50 4E 47 0D 0A 1A 0A`. Otherwise the loader returns evidence missing. The template responds **200** with `data-testid="baseline-evidence-missing"` and the words `Not Found`. The five region test ids are not rendered. Hotel names and form labels from markdown are not sent.
+5. When evidence is present, the loader reads, in order: `inventory.md`, `journey.md`, `validations.md`, `gaps.md`, `questions.md`. Each file is decoded as UTF-8 with a leading BOM stripped.
+6. A GitHub pipe table becomes header and row cells. Separator rows are ignored. The header must equal that file’s contract columns, in order, after trimming. Every data row must have the same number of cells. Zero data rows, a missing file, a file over 256 KiB, a decode error, or any row-width or header mismatch makes that region `Not Found` and drops every row from that file. Other regions still render. The loader does not invent hotel or form rows.
+7. Jinja prints the cells as text. `baseline.html` does not mark cell text safe. Each region heading is fixed in the template. The PNG is shown through `GET /baseline/evidence` only when the same presence check passes.
+8. HarborStay pages never call the loader. The baseline page never reads the mock catalog or `sessionStorage` booking draft.
 
 ### Markdown table contract
 
@@ -123,20 +124,22 @@ Journey steps, in order: search, results, hotel/room selection, guest details, s
 | Interface | Contract |
 |----|---|
 | `GET /baseline` | **200** `text/html`. With the PNG present: five regions with `data-testid` `baseline-inventory`, `baseline-journey`, `baseline-validations`, `baseline-gaps`, `baseline-questions`. With the PNG absent: `baseline-evidence-missing` and those five ids absent. |
-| `GET /baseline/evidence` | **200** `image/png` when the canonical file exists. **404** with a short text body `Not Found` when it does not. No other evidence names are accepted. |
-| `BASELINE_DIR` | App config. Default: `<repo>/docs/baseline`. Tests set it to a temporary directory. |
+| `GET /baseline/evidence` | **200** `image/png` when the PNG signature and size check pass. **404** with a short text body `Not Found` otherwise. No other evidence names are accepted. |
+| `BASELINE_DIR` | App config. Default: parent of the `app` package plus `docs/baseline`, not the process working directory. Tests set it to a temporary directory. |
 | Evidence filename | Constant `image-20261103-075923.png`. Not taken from the request. |
 | Header link | `data-testid="baseline-nav"` points at `/baseline`. |
 | HarborStay | Existing paths and map test ids stay. This story does not change their responses. |
-| Playwright | Happy path asserts the five regions and visible evidence strings from the markdown (including Titan City House, “Book my stay”, a `P0` gap, and a `Not Found` journey step). Missing-evidence path uses a `BASELINE_DIR` without the PNG and asserts `baseline-evidence-missing` plus the absence of those hotel and form strings. |
+| Playwright | Happy path asserts the five regions, their fixed headings, and visible evidence strings from the markdown (including Titan City House, “Book my stay”, a `P0` gap, and a `Not Found` journey step). Missing-evidence path uses a `BASELINE_DIR` without the PNG and asserts `baseline-evidence-missing` plus the absence of those hotel and form strings. |
+| Unit tests | Temp `BASELINE_DIR` covers a valid table, a short row, a wrong header, a non-PNG file, a symlink or path that would leave the directory, and a missing PNG. These do not start a browser. |
 
 There is no JSON API and no write API.
 
 ## Security & Secret Handling
 
-- The baseline loader reads only `BASELINE_DIR` and the five fixed markdown names plus one fixed PNG name. It does not join user input onto a path.
-- `GET /baseline/evidence` does not accept a filename parameter.
-- Markdown cells are inserted as text under Jinja autoescape. The table reader strips a leading or trailing pipe and ignores separator rows. It does not interpret HTML or script in cells.
+- The baseline loader reads only `BASELINE_DIR` and the five fixed markdown names plus one fixed PNG name. It does not join user input onto a path. Resolved paths that leave `BASELINE_DIR` are treated as missing.
+- `GET /baseline/evidence` does not accept a filename parameter. It runs the same PNG signature and size check as the page. A file that fails the check is **404** `Not Found` and is not sent with an image content type.
+- Markdown cells are inserted as text under Jinja autoescape. `baseline.html` must not use `| safe` or `Markup()` on those cells. The table reader strips a leading or trailing pipe and ignores separator rows. It does not interpret HTML or script in cells. A table that does not match the column contract is not rendered.
+- The loader logs a reason code (`missing`, `escape`, `not-png`, `too-large`, `decode`, `bad-table`) and the fixed file name. It does not log cell text, tokens, or a path outside `BASELINE_DIR`.
 - The running app does not load `api-conf.properties`, Jira, or GitHub tokens. Rendering makes no outbound HTTP call.
 - The screenshot is a static product image. Do not add credentials to markdown, templates, tests, or image URLs.
 - `api-conf.properties` stays gitignored. Stage 5 must not commit it.
@@ -145,10 +148,11 @@ There is no JSON API and no write API.
 
 | Condition | Behavior |
 |----|---|
-| Canonical PNG missing | **200**. `baseline-evidence-missing` shows `Not Found`. Five regions are not rendered. |
-| One markdown file missing or not a table | **200** if the PNG exists. That region shows `Not Found`. Other regions render. No synthetic hotel or form rows. |
+| Canonical PNG missing, not a regular file, over 2 MiB, or without the PNG signature | **200**. `baseline-evidence-missing` shows `Not Found`. Five regions are not rendered. |
+| Resolved path escapes `BASELINE_DIR` | Same as missing. The outside file is not read and not logged by absolute path. |
+| One markdown file missing, empty of data rows, over 256 KiB, or not the contract table | **200** if the PNG check passes. That region shows its fixed heading and `Not Found`. Other regions render. No partial or synthetic rows. |
 | Markdown not valid UTF-8 | That region shows `Not Found`. The request still returns **200**. |
-| Evidence route when PNG is missing | **404** body `Not Found`. It does not fall back to another image. |
+| Evidence route when the PNG check fails | **404** body `Not Found`. It does not fall back to another image. |
 | HarborStay catalog or map error | Unrelated. Baseline does not import that data, so a catalog failure does not blank `/baseline`. |
 | Request tries to choose a file | Ignored. Paths are constants and `BASELINE_DIR` config only. |
 
@@ -157,7 +161,7 @@ Unhandled exceptions from the loader are not the intended missing-file path. The
 ## Open Trade-offs
 
 1. **Hide all five regions when the PNG is missing.** The alternative is a banner plus the markdown. Hiding the regions matches “do not render invented hotel or form rows” when evidence is gone, including rows that were typed from the screenshot.
-2. **Pipe-table reader instead of a markdown library.** Prose outside the table is ignored except the file’s first heading, which is the region heading. Rich markdown is out of scope.
+2. **Pipe-table reader instead of a markdown library.** Prose outside the table is ignored. Region headings live in the template. A table whose header or row width does not match the contract is `Not Found` for that region. Rich markdown is out of scope.
 3. **One header link to `/baseline`.** The page is also reachable by URL alone. The link does not change results, map, or booking behavior.
 4. **Q1–Q4 stay open in the questions table** with the Stage 1 assumptions. Architecture does not invent screens, navigation targets, formats, or a calendar date. A later product-owner answer updates `questions.md` and, if needed, the other tables. It does not require a new framework.
 5. **HarborStay and Hotel Titan share one Flask process.** They are different products on different routes. Splitting processes is unnecessary for a read-only page.
