@@ -34,7 +34,11 @@ This starts a new cycle. SCRUM-5 artifacts already in the tree stay as history a
 
 ## PR
 
-pending
+pending — `gh` is not installed, and GitHub `POST /repos/Vinayqa24/CapstoneSDLCCursor/pulls` returned **403** (empty body). The branch is on the remote. Open:
+
+https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/sdlc/stage-8-scrum-5-final...sdlc/stage-1-scrum-31-requirements?expand=1
+
+Grant the token **Pull requests: write** (or install `gh`) to create the PR from here. Base is `sdlc/stage-8-scrum-5-final` so the diff is this stage only.
 
 ## Ready for Human Approval
 
