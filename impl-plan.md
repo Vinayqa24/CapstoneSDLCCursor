@@ -28,16 +28,16 @@ Fixed headings in the template: Inventory, Journey, Validations, Gaps, Questions
 
 | ID | Task | Depends On | Priority | Status | Notes |
 |----|------|------------|----------|--------|-------|
-| T01 | Set `BASELINE_DIR` in `create_app()` to the package parent plus `docs/baseline`. Optional env override for the test server only. | — | P0 | Not started | Do not use the process cwd. Do not add a dependency. Do not read `api-conf.properties`. |
-| T02 | Add `app/baseline.py`: path containment, PNG check, UTF-8 with BOM stripped, pipe-table reader, column contract, 256 KiB markdown cap, reason-code logs. | T01 | P0 | Not started | Files: `inventory.md`, `journey.md`, `validations.md`, `gaps.md`, `questions.md`, `evidence/image-20261103-075923.png`. Log codes: `missing`, `escape`, `not-png`, `too-large`, `decode`, `bad-table`. No cell text in logs. |
-| T03 | Unit tests for the loader on a temp `BASELINE_DIR`. | T02 | P0 | Not started | Cases: valid table, short row, wrong header, zero data rows, non-PNG, file over the size cap, path that leaves the directory, missing PNG. No browser. |
-| T04 | `GET /baseline` and `GET /baseline/evidence` in `app/routes.py`. | T02 | P0 | Not started | Page **200**. Evidence **200** `image/png` only when the PNG check passes; otherwise **404** `Not Found`. No filename parameter. HarborStay routes untouched. |
-| T05 | `app/templates/baseline.html` with the five regions or the missing-evidence message. | T04 | P0 | Not started | Fixed headings and test ids. Omit the five regions when evidence is missing. Title Baseline. |
-| T06 | Text link in `base.html` to `/baseline` with `data-testid="baseline-nav"`. | T05 | P0 | Not started | Do not edit map, catalog, or booking templates. |
-| T07 | Author the five markdown tables from the screenshot and the `Not Found` rules below. | — | P0 | Not started | Can proceed beside T01–T06. No extra hotels, prices, errors, or screens. |
-| T08 | Flask client tests for missing evidence and the evidence route. | T05 | P0 | Not started | Temp dir without the PNG: **200**, `baseline-evidence-missing`, body does not contain `Titan City House`. Bad file: evidence route **404**. |
-| T09 | Flask client test for the populated page. | T05, T07 | P0 | Not started | Five regions, headings, Titan City House, `Book my stay`, `P0`, and a `Not Found` journey step. |
-| T10 | Author `tests/e2e/test_baseline_e2e.py` (pytest-playwright). | T05, T07 | P0 | Not started | Happy path against the committed baseline. Second server with `BASELINE_DIR` pointed at a temp dir for the missing PNG. Do not delete the committed screenshot. |
+| T01 | Set `BASELINE_DIR` in `create_app()` to the package parent plus `docs/baseline`. Optional env override for the test server only. | — | P0 | Done | Do not use the process cwd. Do not add a dependency. Do not read `api-conf.properties`. |
+| T02 | Add `app/baseline.py`: path containment, PNG check, UTF-8 with BOM stripped, pipe-table reader, column contract, 256 KiB markdown cap, reason-code logs. | T01 | P0 | Done | Files: `inventory.md`, `journey.md`, `validations.md`, `gaps.md`, `questions.md`, `evidence/image-20261103-075923.png`. Log codes: `missing`, `escape`, `not-png`, `too-large`, `decode`, `bad-table`. No cell text in logs. |
+| T03 | Unit tests for the loader on a temp `BASELINE_DIR`. | T02 | P0 | Done | Cases: valid table, short row, wrong header, zero data rows, non-PNG, file over the size cap, path that leaves the directory, missing PNG. No browser. |
+| T04 | `GET /baseline` and `GET /baseline/evidence` in `app/routes.py`. | T02 | P0 | Done | Page **200**. Evidence **200** `image/png` only when the PNG check passes; otherwise **404** `Not Found`. No filename parameter. HarborStay routes untouched. |
+| T05 | `app/templates/baseline.html` with the five regions or the missing-evidence message. | T04 | P0 | Done | Fixed headings and test ids. Omit the five regions when evidence is missing. Title Baseline. |
+| T06 | Text link in `base.html` to `/baseline` with `data-testid="baseline-nav"`. | T05 | P0 | Done | Do not edit map, catalog, or booking templates. |
+| T07 | Author the five markdown tables from the screenshot and the `Not Found` rules below. | — | P0 | Done | Can proceed beside T01–T06. No extra hotels, prices, errors, or screens. |
+| T08 | Flask client tests for missing evidence and the evidence route. | T05 | P0 | Done | Temp dir without the PNG: **200**, `baseline-evidence-missing`, body does not contain `Titan City House`. Bad file: evidence route **404**. |
+| T09 | Flask client test for the populated page. | T05, T07 | P0 | Done | Five regions, headings, Titan City House, `Book my stay`, `P0`, and a `Not Found` journey step. |
+| T10 | Author `tests/e2e/test_baseline_e2e.py` (pytest-playwright). | T05, T07 | P0 | Done | Happy path against the committed baseline. Second server with `BASELINE_DIR` pointed at a temp dir for the missing PNG. Do not delete the committed screenshot. |
 | T11 | Run the baseline Playwright file and the existing map Playwright file once. | T06, T10 | P0 | Blocked | Stage 7 only. Confirms the header link did not break map test ids. |
 
 ### T07 content rules

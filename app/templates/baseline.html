@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Baseline{% endblock %}
+{% block content %}
+{% macro region(testid, heading, table) %}
+<section data-testid="{{ testid }}">
+  <h2>{{ heading }}</h2>
+  {% if table.ok %}
+  <table class="baseline-table">
+    <thead>
+      <tr>
+        {% for header in table.headers %}
+        <th scope="col">{{ header }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in table.rows %}
+      <tr>
+        {% for cell in row %}
+        <td>{{ cell }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Not Found</p>
+  {% endif %}
+</section>
+{% endmacro %}
+{% if model.evidence_missing %}
+  <p data-testid="baseline-evidence-missing">Not Found</p>
+{% else %}
+  {{ region("baseline-inventory", "Inventory", model.sections.inventory) }}
+  {{ region("baseline-journey", "Journey", model.sections.journey) }}
+  {{ region("baseline-validations", "Validations", model.sections.validations) }}
+  {{ region("baseline-gaps", "Gaps", model.sections.gaps) }}
+  {{ region("baseline-questions", "Questions", model.sections.questions) }}
+  <img class="baseline-shot" src="{{ url_for('baseline_evidence') }}" alt="Hotel Titan screenshot, the only UI evidence">
+{% endif %}
+{% endblock %}

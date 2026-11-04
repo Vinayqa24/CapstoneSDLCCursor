@@ -1,4 +1,6 @@
-from flask import render_template
+from flask import Response, render_template
+
+from app.baseline import load_baseline, read_evidence
 
 
 def register_routes(app):
@@ -26,3 +28,15 @@ def register_routes(app):
     @app.get("/confirmation")
     def confirmation():
         return render_template("confirmation.html")
+
+    @app.get("/baseline")
+    def baseline():
+        model = load_baseline(app.config["BASELINE_DIR"])
+        return render_template("baseline.html", model=model)
+
+    @app.get("/baseline/evidence")
+    def baseline_evidence():
+        payload = read_evidence(app.config["BASELINE_DIR"])
+        if payload is None:
+            return Response("Not Found", status=404, mimetype="text/plain")
+        return Response(payload, mimetype="image/png")
