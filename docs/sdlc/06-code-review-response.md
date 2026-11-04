@@ -2,29 +2,29 @@
 
 ## Summary
 
-Reviewed the Flask HarborStay + Leaflet map implementation against the capstone checklist. Found one critical bug: `Number(null) === 0` would plot hotels without coordinates. Fixed `isPlottable` in `app/static/js/map.js`. Warnings: weak email check, E2E not executed yet, unused gunicorn. Ready for Verify after human acceptance of this review.
+Reviewed the SCRUM-31 baseline viewer (Flask loader, `GET /baseline`, markdown tables, and tests) against `requirements.md` and `architecture.md`. No critical defect. The page stays on the approved stack, does not take request paths, and does not invent rows when the screenshot is missing. Playwright scripts are written and have not been run.
 
 ## Artifacts
 
-- `code-review.md` — primary Stage 6 report
-- `app/static/js/map.js` — critical fix
+- `code-review.md` — primary Stage 6 artifact
 - `docs/sdlc/06-code-review-response.md` — this file
 
 ## Key Decisions
 
-- Treat null-coordinate plotting as must-fix (FR-9 / Offshore hotel).
-- Do not expand guest validation or remove gunicorn in this stage unless requested.
-- Verify stays blocked until this review is accepted (critical already patched).
+- No code change in this stage. The warnings are residual, not must-fix defects.
+- Verify may start after human acceptance. The first Verify task is to run `tests/e2e/test_baseline_e2e.py` and `tests/e2e/test_booking_e2e.py` with Playwright.
+- HarborStay map and booking logic was not part of the change under review, except the `baseline-nav` link, which the map regression run must still cover.
 
 ## Open Questions / Blockers
 
-- Human accept warnings and proceed to Stage 7.
-- GitHub PR API may still 403.
+- Human acceptance of this review before Stage 7.
+- Chromium is not installed in this environment, so the browser pass could not be repeated here.
+- GitHub `POST /pulls` may return 403. `gh` is not installed.
 
 ## PR
 
-pending — compare URL: https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-6-scrum-5-code-review?expand=1
+pending
 
 ## Ready for Human Approval
 
-Yes. Confirm the code review and the `isPlottable` fix before Stage 7 Verify. Reply **approved** / **proceed to verify**, or list further fixes.
+Yes. No critical items. Reply **approved** / **proceed to verify** to start Stage 7, or list fixes.

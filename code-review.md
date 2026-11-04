@@ -2,45 +2,47 @@
 
 ## Summary
 
-Peer review of Stage 5 HarborStay (Flask + Leaflet map for [SCRUM-5](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-5)) against `requirements.md` and `architecture.md`. Stack fit is correct. One **critical** coordinate bug (`Number(null) === 0`) would have placed unmapped hotels at (0, 0) and broken `map-no-coords`. That is **fixed in `app/static/js/map.js`**. Remaining items are warnings/suggestions. Route smoke exists; Playwright E2E is authored for Stage 7 and has not been executed yet.
+Peer review of the Stage 5 Flask baseline viewer for [SCRUM-31](https://vinayqa24-1792155730342.atlassian.net/browse/SCRUM-31) against `requirements.md` and `architecture.md`. The diff is the loader, `GET /baseline`, the five markdown tables, and the tests (`git diff sdlc/stage-4-scrum-31-impl-plan...HEAD`). Stack fit is correct. No critical defect. HarborStay map and booking handlers were not changed except the header link.
+
+Loader and route tests were re-checked in Stage 5: 19 passed, 1 skipped (OS symlink). Playwright scripts exist and have not been executed. Stage 7 should run them with Playwright, including the existing map file.
 
 ## Critical (must fix)
 
-1. **Null coordinates treated as 0,0** — `app/static/js/map.js` `isPlottable` used `Number(hotel.lat)` / `Number(hotel.lng)`. In JavaScript `Number(null) === 0`, which is in-range, so `hotel-12` (lat/lng `null`) would get a marker in the Atlantic instead of `map-no-coords` (FR-9, AC). **Fixed:** require `typeof … === "number"` before the range check.
+None.
 
 ## Warnings (should fix)
 
-1. **Guest email check is weak** — `app/static/js/booking-guest.js` only requires `"@"`. Fine for a mock portal; tighten if guest validation is in Stage 7 beyond “has an @”.
-2. **Playwright not run in Stage 5** — `tests/e2e/` is ignored by default `pytest` (`tests/conftest.py` `collect_ignore`). Stage 7 must install Chromium and execute marker/empty/Offshore paths.
-3. **Empty map still shows a tile pane** — When `map-empty` is visible, leftover OSM tiles remain under the message. Acceptable vs AC (message + zero markers); clearer if the map container is hidden when empty.
-4. **Unused runtime dep** — `gunicorn==23.0.0` in `requirements.txt` is unused (`flask run` only). Extra install surface.
+1. **Playwright has not been executed** — `tests/e2e/test_baseline_e2e.py` is authored. `tests/conftest.py` sets `collect_ignore = ["e2e"]`, so a normal `pytest` run skips it. Chromium was not installed in Stage 5, and Playwright MCP was not available. Stage 7 must install Chromium and run `tests/e2e/test_baseline_e2e.py` and `tests/e2e/test_booking_e2e.py`.
+2. **A read error after the existence check can still 500** — `app/baseline.py` `_png_ok` and `_load_table` handle a missing path, a bad signature, a size cap, and `UnicodeDecodeError`. `stat()` or `open()` raising `OSError` (permission, file deleted mid-request) is not caught, so the request becomes an unhandled 500. Architecture asks the loader to turn file failure into `Not Found`.
+3. **HTML escaping is not locked by a test** — `app/templates/baseline.html` prints cells with `{{ cell }}` and does not mark them safe. There is no test that a cell containing `<script>` is escaped. The behavior is the Jinja default; a one-row unit or client test would keep a later edit from marking the cell safe.
+4. **Real symlink escape was skipped on this host** — `tests/test_baseline.py` `test_symlink_outside_baseline_is_missing` skipped because Windows would not create the link. `test_resolved_path_outside_is_rejected` and `test_loader_rejects_path_that_leaves_the_directory` did run. Stage 7 does not need the symlink if those two stay.
 
 ## Suggestions (consider)
 
-1. Hide `#results-map` when showing empty/no-coords/fallback.
-2. Drop gunicorn or document it as optional deploy.
-3. Share `encodeURIComponent(hotel.id)` URL helpers between map, results, and details (small DRY).
-4. Stage 7: run Offshore filter E2E to lock the null-coord fix.
+1. `load_baseline` and `read_evidence` in `app/baseline.py` repeat the resolve-and-PNG-check. One helper would keep the two routes from drifting.
+2. `test_baseline_regions` clicks `baseline-nav` only after the test is already on `/baseline`. Also open `/results` and follow the link so the header change is what the test proves.
+3. Confirm the three property blurbs in `docs/baseline/inventory.md` against the PNG during the Stage 7 browser pass. Names and the booking fields are covered by tests; the short descriptions are not.
+4. `gunicorn==23.0.0` in `requirements.txt` is still unused. It was not added in this stage. Leave it unless a later stage documents a deploy command.
 
 ## Checklist Results
 
 | Area | Pass/Fail | Notes |
 |------|-----------|-------|
-| Correctness | Pass (after fix) | List+map, popups via `textContent`, details/book URLs, distinct empty vs no-coords, DivIcon testids. Null-coord bug fixed. |
-| Security | Pass | No map/GitHub/Jira secrets in app. `api-conf.properties` gitignored. Popup DOM not `innerHTML` of catalog. No PAN. `hotel_id` passed with Jinja `tojson`. |
-| Error Handling | Pass | Unknown hotel id → in-page not-found (HTTP 200). Bad `sessionStorage` JSON → null draft. Leaflet missing → `map-fallback`. Invalid coords skipped after fix. Catalog is bundled JS (no empty-repo sync API in this story). |
-| Test Coverage | Pass* | Route 200s, unknown hotel hook, map testids, Leaflet static. E2E scripts cover marker/details/book/empty/Offshore but are Stage 7 execute. * = E2E not yet run. |
-| Code Clarity | Pass | Small modules (`catalog`, `results`, `map`, `booking-*`). Names match architecture. |
-| DRY Principle | Pass | Filter pipeline is single-source for list and map. Minor URL-building duplication is acceptable. |
-| Dependency Safety | Pass | Pinned Flask 3.0.3, pytest, Playwright. Vendored Leaflet 1.9.4 + LICENSE. OSM tiles need no key. gunicorn unused (warning). |
-| Stack fit | Pass | Python Flask web app as architecture/impl-plan. |
+| Correctness | Pass | `GET /baseline` renders the five regions from the contract tables when the PNG check passes, and omits them when it fails. Journey steps that are not in the screenshot are `Not Found`. HarborStay routes still return 200 and `results-map`. |
+| Security | Pass | No secrets in the new Python, templates, markdown, or tests. Request paths are not joined onto `BASELINE_DIR`. Evidence is a fixed filename. Cells are autoescaped. `api-conf.properties` is not read by the app. |
+| Error Handling | Pass | Missing PNG, non-PNG, oversize markdown, bad header, short row, and zero data rows return a page or `Not Found` instead of invented rows. `OSError` during read is the remaining gap (warning 2). No outbound API. |
+| Test Coverage | Pass | Happy path and missing-evidence client tests pass. Loader tests cover a valid table, short row, wrong header, empty table, non-PNG, oversize PNG, oversize markdown, missing PNG, and a path outside the directory. Playwright execution is Stage 7. |
+| Code Clarity | Pass | `load_baseline`, `read_evidence`, and `path_stays_inside` match the architecture names. Section columns live in one tuple. |
+| DRY Principle | Pass | The evidence check is duplicated in two functions (suggestion 1). Table parsing is shared. Not enough duplication to fail the review. |
+| Dependency Safety | Pass | No new package. Pins are unchanged: Flask 3.0.3, pytest 8.3.3, playwright 1.64.0, pytest-playwright 0.10.0, gunicorn 23.0.0. No audit tool was run. |
+| Stack fit | Pass | Python Flask app, Jinja template, local markdown, Playwright script path as in `architecture.md` and `impl-plan.md`. |
 
 ## Recommended Fixes (ordered)
 
-1. ~~Reject non-number lat/lng in `isPlottable`~~ **done**
-2. Stage 7: run `pytest tests/e2e/test_booking_e2e.py` (Chromium + live app)
-3. Optional: hide map pane on empty states; remove gunicorn if unused
+1. Stage 7: install Chromium and run the baseline and map Playwright files.
+2. Optional before Verify: catch `OSError` in the loader and add an escape test for a `<script>` cell. Not required to leave this review.
+3. During the browser pass, compare the three property blurbs to the screenshot.
 
-## Ready for Verify Stage? (yes/no)
+## Ready for Verify Stage?
 
-**Yes**, provided the null-coord fix stays in the tree and the human accepts remaining warnings. Stage 7 must actually run Playwright (MCP/scripts), not only keep them unexecuted.
+Yes. There is no critical defect. Stage 7 still has to execute the Playwright scripts; authoring them was Stage 5 (T10). T11 stays blocked until that run.
