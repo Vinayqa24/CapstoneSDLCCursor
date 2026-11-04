@@ -25,7 +25,11 @@ Closed the Agentic SDLC cycle for [SCRUM-31](https://vinayqa24-1792155730342.atl
 
 ## PR
 
-pending
+pending — `gh` is not installed, and GitHub `POST /repos/Vinayqa24/CapstoneSDLCCursor/pulls` returned **403**. The branch is on the remote. Open:
+
+https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/main...sdlc/stage-8-scrum-31-final?expand=1
+
+Paste `docs/sdlc/final-pr-body.md` into the description. Base is `main`. Grant the token **Pull requests: write** to create the PR from here.
 
 ## Ready for Human Approval
 
