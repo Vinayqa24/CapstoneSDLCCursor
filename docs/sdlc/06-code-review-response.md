@@ -23,7 +23,11 @@ Reviewed the SCRUM-31 baseline viewer (Flask loader, `GET /baseline`, markdown t
 
 ## PR
 
-pending
+pending — `gh` is not installed, and GitHub `POST /repos/Vinayqa24/CapstoneSDLCCursor/pulls` returned **403**. The branch is on the remote. Open:
+
+https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/sdlc/stage-5-scrum-31-implementation...sdlc/stage-6-scrum-31-code-review?expand=1
+
+Base is `sdlc/stage-5-scrum-31-implementation` so the diff is this stage only. Grant the token **Pull requests: write** to create the PR from here.
 
 ## Ready for Human Approval
 
