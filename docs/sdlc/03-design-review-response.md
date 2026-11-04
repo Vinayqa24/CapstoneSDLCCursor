@@ -29,7 +29,11 @@ No production code was written. HarborStay map behavior was not changed.
 
 ## PR
 
-pending
+pending — `gh` is not installed, and GitHub `POST /repos/Vinayqa24/CapstoneSDLCCursor/pulls` returned **403**. The branch is on the remote. Open:
+
+https://github.com/Vinayqa24/CapstoneSDLCCursor/compare/sdlc/stage-2-scrum-31-architecture...sdlc/stage-3-scrum-31-design-review?expand=1
+
+Base is `sdlc/stage-2-scrum-31-architecture` so the diff is this stage only. Grant the token **Pull requests: write** to create the PR from here.
 
 ## Ready for Human Approval
 
